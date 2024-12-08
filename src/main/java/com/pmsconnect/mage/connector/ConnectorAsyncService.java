@@ -415,6 +415,7 @@ public class ConnectorAsyncService {
         return false;
     }
 
+    // TODO: change from monitoring the artifact available state to various states mentioned in each artifact process model
     public void updateArtifactPool(Connector connector, List<PreDefinedArtifactInstance> detectedArtifacts) {
         if (connector instanceof SupplementaryConnector) {
             Connector baseConnector = connectorRepository.findById(((SupplementaryConnector) connector).getSuppConnectorId()).orElseThrow(() -> new IllegalStateException("Connector with id " + ((SupplementaryConnector) connector).getSuppConnectorId() + "does not exist."));
