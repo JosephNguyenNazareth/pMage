@@ -2,10 +2,12 @@ package com.pmsconnect.mage.connector;
 
 import com.pmsconnect.mage.casestudy.PreDefinedArtifactInstance;
 import com.pmsconnect.mage.config.AppConfig;
+import com.pmsconnect.mage.kie.KieServer;
 import com.pmsconnect.mage.utils.ActionEvent;
 import com.pmsconnect.mage.utils.Alignment;
 
 import com.pmsconnect.mage.utils.Artifact;
+import com.pmsconnect.mage.utils.Transition;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -281,6 +283,7 @@ public class ConnectorAsyncService {
     private void completeTaskTriggered(Connector connector, String taskDetected, String triggeredActionTask, StringBuilder monitoringMess) {
         String newTaskInstanceId = startTaskInstance(connector, taskDetected);
         List<PreDefinedArtifactInstance> detectedArtifacts = detectArtifactFromTriggeredAction(connector, triggeredActionTask, monitoringMess);
+        updateArtifactLifeCyclePool(connector, taskDetected, detectedArtifacts);
         endTaskInstance(connector, newTaskInstanceId, detectedArtifacts);
         updateArtifactPool(connector, detectedArtifacts);
     }
@@ -450,6 +453,64 @@ public class ConnectorAsyncService {
         }
 
         connectorRepository.save(connector);
+    }
+
+    // TODO : on va gérer les artefacts et leur cycle de vie par cette fonction
+    public void updateArtifactLifeCyclePool(Connector connector, String taskDetected, List<PreDefinedArtifactInstance> detectedArtifacts) {
+        if (connector instanceof SupplementaryConnector) {
+            Connector baseConnector = connectorRepository.findById(((SupplementaryConnector) connector).getSuppConnectorId()).orElseThrow(() -> new IllegalStateException("Connector with id " + ((SupplementaryConnector) connector).getSuppConnectorId() + "does not exist."));
+            Map<String, Artifact> mainArtifactPool = connector.getArtifactPool();
+            Map<String, Artifact> monitoredArtifactPool = baseConnector.getArtifactPool();
+
+            for (PreDefinedArtifactInstance artifact: detectedArtifacts) {
+                String detectedArtifactName = artifact.getName();
+
+                if (monitoredArtifactPool.containsKey(detectedArtifactName)) {
+                    if (!monitoredArtifactPool.get(detectedArtifactName).isAvailable())
+                        throw new IllegalStateException("Cannot update artifact due to conflicts of monitored connector " + ((SupplementaryConnector) connector).getSuppConnectorId());
+                }
+
+                if (mainArtifactPool.containsKey(detectedArtifactName)) {
+                    mainArtifactPool.get(detectedArtifactName).setAvailable(true);
+                    updateArtifactByRule(connector, detectedArtifactName, mainArtifactPool.get(detectedArtifactName), taskDetected);
+                } else {
+                    Artifact newArtifact = new Artifact(detectedArtifactName, true);
+                    mainArtifactPool.put(detectedArtifactName, newArtifact);
+                    updateArtifactByRule(connector, detectedArtifactName, newArtifact, taskDetected);
+                }
+            }
+        } else {
+            Map<String, Artifact> artifactPool = connector.getArtifactPool();
+            for (PreDefinedArtifactInstance artifact: detectedArtifacts) {
+                String detectedArtifactName = artifact.getName();
+
+                if (artifactPool.containsKey(detectedArtifactName)) {
+                    artifactPool.get(detectedArtifactName).setAvailable(true);
+                    updateArtifactByRule(connector, detectedArtifactName, artifactPool.get(detectedArtifactName), taskDetected);
+                } else {
+                    Artifact brandNewArtifact = new Artifact(detectedArtifactName, true);
+                    artifactPool.put(detectedArtifactName, new Artifact(detectedArtifactName, true));
+                    updateArtifactByRule(connector, detectedArtifactName, brandNewArtifact, taskDetected);
+                }
+            }
+        }
+
+        connectorRepository.save(connector);
+    }
+
+    private void updateArtifactByRule(Connector connector, String detectedArtifactName, Artifact artifact, String taskDetected) {
+        KieServer newKieServer = new KieServer(detectedArtifactName + ".drl");
+        newKieServer.startNewSession();
+
+        Transition targetTask = new Transition(taskDetected, detectedArtifactName, connector.getUserName());
+
+        try {
+            newKieServer.getKieSession().insert(artifact);
+            newKieServer.getKieSession().insert(targetTask);
+            newKieServer.getKieSession().fireAllRules();
+        } finally {
+            newKieServer.getKieSession().dispose();
+        }
     }
 
     public void checkingPMSLog(Connector connector) {
