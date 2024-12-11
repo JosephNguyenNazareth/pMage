@@ -761,7 +761,8 @@ public class ConnectorService {
                     for (int i = 0; i < taskList.length(); i++) {
                         JSONObject task = taskList.getJSONObject(i);
                         String artifactName = task.getString("name");
-                        connector.addArtifact(artifactName);
+                        String artifactState = task.getString("state");
+                        connector.addArtifact(new Artifact(artifactName, artifactState, false));
                     }
                 }
             }

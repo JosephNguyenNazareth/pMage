@@ -459,24 +459,24 @@ public class ConnectorAsyncService {
     public void updateArtifactLifeCyclePool(Connector connector, String taskDetected, List<PreDefinedArtifactInstance> detectedArtifacts) {
         if (connector instanceof SupplementaryConnector) {
             Connector baseConnector = connectorRepository.findById(((SupplementaryConnector) connector).getSuppConnectorId()).orElseThrow(() -> new IllegalStateException("Connector with id " + ((SupplementaryConnector) connector).getSuppConnectorId() + "does not exist."));
-            Map<String, Artifact> mainArtifactPool = connector.getArtifactPool();
-            Map<String, Artifact> monitoredArtifactPool = baseConnector.getArtifactPool();
+            Map<String, Artifact> arPool = connector.getArtifactPool();
+            Map<String, Artifact> mArPool = baseConnector.getArtifactPool();
 
             for (PreDefinedArtifactInstance artifact: detectedArtifacts) {
-                String detectedArtifactName = artifact.getName();
+                String detectedArName = artifact.getName();
 
-                if (monitoredArtifactPool.containsKey(detectedArtifactName)) {
-                    if (!monitoredArtifactPool.get(detectedArtifactName).isAvailable())
+                if (mArPool.containsKey(detectedArName)) {
+                    if (!mArPool.get(detectedArName).isAvailable() || !mArPool.get(detectedArName).getState().equals(artifact.getState()))
                         throw new IllegalStateException("Cannot update artifact due to conflicts of monitored connector " + ((SupplementaryConnector) connector).getSuppConnectorId());
                 }
 
-                if (mainArtifactPool.containsKey(detectedArtifactName)) {
-                    mainArtifactPool.get(detectedArtifactName).setAvailable(true);
-                    updateArtifactByRule(connector, detectedArtifactName, mainArtifactPool.get(detectedArtifactName), taskDetected);
+                if (arPool.containsKey(detectedArName)) {
+                    arPool.get(detectedArName).setAvailable(true);
+                    updateArtifactByRule(connector, detectedArName, arPool.get(detectedArName), taskDetected);
                 } else {
-                    Artifact newArtifact = new Artifact(detectedArtifactName, true);
-                    mainArtifactPool.put(detectedArtifactName, newArtifact);
-                    updateArtifactByRule(connector, detectedArtifactName, newArtifact, taskDetected);
+                    Artifact newArtifact = new Artifact(detectedArName, true);
+                    arPool.put(detectedArName, newArtifact);
+                    updateArtifactByRule(connector, detectedArName, newArtifact, taskDetected);
                 }
             }
         } else {

@@ -17,6 +17,12 @@ public class Artifact {
         this.available = available;
     }
 
+    public Artifact(String name, String state, boolean available) {
+        this.name = name;
+        this.state = state;
+        this.available = available;
+    }
+
     public String getName() {
         return name;
     }
