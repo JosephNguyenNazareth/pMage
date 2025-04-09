@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Document(collection = "new_connector")
+@Document(collection = "connector")
 public class Connector {
     @Id
     private String id;
