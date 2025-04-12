@@ -13,6 +13,7 @@ public class User {
     private String userName;
     private String password;
     private List<String> listConnectorId;
+    private List<String> listProjectId;
     private String role;
     private List<Invitation> invitationSentList;
     private List<Invitation> invitationReceivedList;
@@ -23,6 +24,7 @@ public class User {
         this.userName = userName;
         this.password = password;
         this.listConnectorId = listConnectorId;
+        this.listProjectId = new ArrayList<>();
         this.role = role;
         this.invitationSentList = new ArrayList<>();
         this.invitationReceivedList = new ArrayList<>();
@@ -33,6 +35,7 @@ public class User {
         this.password = password;
         this.role = role;
         this.listConnectorId = new ArrayList<>();
+        this.listProjectId = new ArrayList<>();
         this.invitationSentList = new ArrayList<>();
         this.invitationReceivedList = new ArrayList<>();
     }
@@ -75,6 +78,14 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<String> getListProjectId() {
+        return listProjectId;
+    }
+
+    public void setListProjectId(List<String> listProjectId) {
+        this.listProjectId = listProjectId;
     }
 
     public List<Invitation> getInvitationSentList() {
