@@ -2,265 +2,348 @@
     {
         "pms": "core-bape",
         "url": "http://localhost:8081/api/process-instance",
-        "api_info": {
-            "verify": {
-                "method" : "GET",
-                "url" : "{url}/{processInstanceId}",
-                "param" : []
+        "api_info": [
+            {
+                "name": "verify",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/{processInstanceId}",
+                    "param": []
+                }
             },
-            "createProcess": {
-                "method" : "POST",
-                "url" : "{url}",
-                "param" : ["processName","creatorName"]
+            {
+                "name": "createProcess",
+                "config": {
+                    "method": "POST",
+                    "url": "{url}",
+                    "param": ["processName", "creatorName"]
+                }
             },
-            "changeProcessState" : {
-                "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/change-state",
-                "param" : ["processInstanceState"]
+            {
+                "name": "changeProcessState",
+                "config": {
+                    "method": "PUT",
+                    "url": "{url}/{processInstanceId}/change-state",
+                    "param": ["processInstanceState"]
+                }
             },
-            "getTask" : {
-                "method" : "GET",
-                "url" : "{url}/{processInstanceId}/get-tasks",
-                "param" : []
+            {
+                "name": "getTask",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/{processInstanceId}/get-tasks",
+                    "param": []
+                }
             },
-            "validateTask" : {
-                "method" : "GET",
-                "url" : "{url}/{processInstanceId}/validate-task",
-                "param" : ["taskName","actorName"]
+            {
+                "name": "validateTask",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/{processInstanceId}/validate-task",
+                    "param": ["taskName", "actorName"]
+                }
             },
-            "startTask" : {
-                "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/start-task",
-                "param" : ["taskName","actorName"]
+            {
+                "name": "startTask",
+                "config": {
+                    "method": "PUT",
+                    "url": "{url}/{processInstanceId}/start-task",
+                    "param": ["taskName", "actorName"]
+                }
             },
-            "endTask" : {
-                "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/end-task",
-                "param" : ["taskId"]
+            {
+                "name": "endTask",
+                "config": {
+                    "method": "PUT",
+                    "url": "{url}/{processInstanceId}/end-task",
+                    "param": ["taskId"]
+                }
             },
-            "getArtifact" : {
-                "method": "GET",
-                "url": "{url}/{processInstanceId}/data-object",
-                "param": []
+            {
+                "name": "getArtifact",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/{processInstanceId}/data-object",
+                    "param": []
+                }
             },
-            "log" : {
-                "method": "GET",
-                "url": "{url}/log",
-                "param": []
+            {
+                "name": "log",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/log",
+                    "param": []
+                }
             }
-        }
+        ]
     },
     {
         "pms": "core-bape2",
         "url": "https://corebape2.josephnazareth.repl.co/api/process-instance",
-        "api_info": {
-            "verify": {
-                "method" : "GET",
-                "url" : "{url}/{processInstanceId}",
-                "param" : []
+        "api_info": [
+            {
+                "name": "verify",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/{processInstanceId}",
+                    "param": []
+                }
             },
-            "createProcess": {
-                "method" : "POST",
-                "url" : "{url}",
-                "param" : ["processName","creatorName"]
+            {
+                "name": "createProcess",
+                "config": {
+                    "method": "POST",
+                    "url": "{url}",
+                    "param": ["processName", "creatorName"]
+                }
             },
-            "changeProcessState" : {
-                "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/change-state",
-                "param" : ["processInstanceState"]
+            {
+                "name": "changeProcessState",
+                "config": {
+                    "method": "PUT",
+                    "url": "{url}/{processInstanceId}/change-state",
+                    "param": ["processInstanceState"]
+                }
             },
-            "validateTask" : {
-                "method" : "GET",
-                "url" : "{url}/{processInstanceId}/validate-task",
-                "param" : ["taskName","actorName"]
+            {
+                "name": "validateTask",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/{processInstanceId}/validate-task",
+                    "param": ["taskName", "actorName"]
+                }
             },
-            "startTask" : {
-                "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/start-task",
-                "param" : ["taskName","actorName"]
+            {
+                "name": "startTask",
+                "config": {
+                    "method": "PUT",
+                    "url": "{url}/{processInstanceId}/start-task",
+                    "param": ["taskName", "actorName"]
+                }
             },
-            "endTask" : {
-                "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/end-task",
-                "param" : ["taskId"]
+            {
+                "name": "endTask",
+                "config": {
+                    "method": "PUT",
+                    "url": "{url}/{processInstanceId}/end-task",
+                    "param": ["taskId"]
+                }
             }
-        }
+        ]
     },
     {
-        "pms" : "jBPM",
-        "url" : "http://localhost:8080/kie-server/services/rest",
-        "user_info" : {
-            "method" : "Basic Auth",
-            "username" : "wbadmin",
-            "password" : "wbadmin"
+        "pms": "jBPM",
+        "url": "http://localhost:8080/kie-server/services/rest",
+        "user_info": {
+            "method": "Basic Auth",
+            "username": "wbadmin",
+            "password": "wbadmin"
         },
-        "api_info": {
-            "verify": {
-                "method" : "GET",
-                "url" : "{url}/server/queries/processes/instances/{processInstanceId}",
-                "param" : []
+        "api_info": [
+            {
+                "name": "verify",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/server/queries/processes/instances/{processInstanceId}",
+                    "param": []
+                }
             },
-            "createProcess": {
-                "method" : "POST",
-                "url" : "{url}/server/containers/{containerId}/processes/{processName}/instances",
-                "param" : []
+            {
+                "name": "createProcess",
+                "config": {
+                    "method": "POST",
+                    "url": "{url}/server/containers/{containerId}/processes/{processName}/instances",
+                    "param": []
+                }
             },
-            "validateTask" : {
-                "method" : "GET",
-                "url" : "{url}/server/containers/{containerId}/tasks/{taskInstanceId}",
-                "param" : []
+            {
+                "name": "validateTask",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/server/containers/{containerId}/tasks/{taskInstanceId}",
+                    "param": []
+                }
             },
-            "startTask" : {
-                "method" : "PUT",
-                "url" : "{url}/server/containers/{containerId}/tasks/{taskInstanceId}/states/started",
-                "param" : []
+            {
+                "name": "startTask",
+                "config": {
+                    "method": "PUT",
+                    "url": "{url}/server/containers/{containerId}/tasks/{taskInstanceId}/states/started",
+                    "param": []
+                }
             },
-            "endTask" : {
-                "method" : "PUT",
-                "url" : "{url}/server/containers/{containerId}/tasks/{taskInstanceId}/states/completed",
-                "param" : []
+            {
+                "name": "endTask",
+                "config": {
+                    "method": "PUT",
+                    "url": "{url}/server/containers/{containerId}/tasks/{taskInstanceId}/states/completed",
+                    "param": []
+                }
             }
-        }
+        ]
     },
     {
-        "pms" : "bonita",
-        "url" : "http://localhost:8080/bonita",
-        "api_info": {
-            "login" : {
-                "method" : "POST",
-                "url" : "{url}/loginservice",
-                "header" : {
-                    "fixed": {
-                        "Content-type": "application/x-www-form-urlencoded"
-                    }
-                },
-                "body" : ["username", "password"],
-                "return" : {
-                    "JSESSIONID":  {
-                        "header": "Set-Cookie"
+        "pms": "bonita",
+        "url": "http://localhost:8080/bonita",
+        "api_info": [
+            {
+                "name": "login",
+                "config": {
+                    "method": "POST",
+                    "url": "{url}/loginservice",
+                    "header": {
+                        "fixed": {
+                            "Content-type": "application/x-www-form-urlencoded"
+                        }
                     },
-                    "X-Bonita-API-Token":  {
-                        "header": "Set-Cookie"
+                    "body": ["username", "password"],
+                    "return": {
+                        "JSESSIONID": {
+                            "header": "Set-Cookie"
+                        },
+                        "X-Bonita-API-Token": {
+                            "header": "Set-Cookie"
+                        }
                     }
                 }
             },
-            "verify": {
-                "method" : "GET",
-                "url" : "{url}/API/bpm/case/{processInstanceId}",
-                "cookie": {
-                    "dynamic": {
-                        "JSESSIONID": {
-                            "login" : "return"
+            {
+                "name": "verify",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/API/bpm/case/{processInstanceId}",
+                    "cookie": {
+                        "dynamic": {
+                            "JSESSIONID": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "header": {
-                    "dynamic": {
-                        "X-Bonita-API-Token": {
-                            "login" : "return"
+                    },
+                    "header": {
+                        "dynamic": {
+                            "X-Bonita-API-Token": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "param" : []
+                    },
+                    "param": []
+                }
             },
-            "createProcess": {
-                "method" : "POST",
-                "url" : "{url}/API/bpm/process/{processId}/instantiation",
-                "cookie": {
-                    "dynamic": {
-                        "JSESSIONID": {
-                            "login" : "return"
+            {
+                "name": "createProcess",
+                "config": {
+                    "method": "POST",
+                    "url": "{url}/API/bpm/process/{processId}/instantiation",
+                    "cookie": {
+                        "dynamic": {
+                            "JSESSIONID": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "header": {
-                    "dynamic": {
-                        "X-Bonita-API-Token": {
-                            "login" : "return"
+                    },
+                    "header": {
+                        "dynamic": {
+                            "X-Bonita-API-Token": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "param" : []
+                    },
+                    "param": []
+                }
             },
-            "getCase" : {
-                "method" : "GET",
-                "url" : "{url}/API/bpm/case?s={processDef}",
-                "cookie": {
-                    "dynamic": {
-                        "JSESSIONID": {
-                            "login" : "return"
+            {
+                "name": "getCase",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/API/bpm/case?s={processDef}",
+                    "cookie": {
+                        "dynamic": {
+                            "JSESSIONID": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "header": {
-                    "dynamic": {
-                        "X-Bonita-API-Token": {
-                            "login" : "return"
+                    },
+                    "header": {
+                        "dynamic": {
+                            "X-Bonita-API-Token": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "param" : []
+                    },
+                    "param": []
+                }
             },
-            "getTask" : {
-                "method" : "GET",
-                "url" : "{url}/API/bpm/task?f=caseId={processInstanceId}",
-                "cookie": {
-                    "dynamic": {
-                        "JSESSIONID": {
-                            "login" : "return"
+            {
+                "name": "getTask",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/API/bpm/task?f=caseId={processInstanceId}",
+                    "cookie": {
+                        "dynamic": {
+                            "JSESSIONID": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "header": {
-                    "dynamic": {
-                        "X-Bonita-API-Token": {
-                            "login" : "return"
+                    },
+                    "header": {
+                        "dynamic": {
+                            "X-Bonita-API-Token": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "param" : []
+                    },
+                    "param": []
+                }
             },
-            "validateTask" : {
-                "method" : "GET",
-                "url" : "{url}/API/bpm/task/{taskInstanceId}",
-                "cookie": {
-                    "dynamic": {
-                        "JSESSIONID": {
-                            "login" : "return"
+            {
+                "name": "validateTask",
+                "config": {
+                    "method": "GET",
+                    "url": "{url}/API/bpm/task/{taskInstanceId}",
+                    "cookie": {
+                        "dynamic": {
+                            "JSESSIONID": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "header": {
-                    "dynamic": {
-                        "X-Bonita-API-Token": {
-                            "login" : "return"
+                    },
+                    "header": {
+                        "dynamic": {
+                            "X-Bonita-API-Token": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "param" : []
+                    },
+                    "param": []
+                }
             },
-            "endTask" : {
-                "method" : "PUT",
-                "url" : "{url}/API/bpm/task/{taskInstanceId}",
-                "cookie": {
-                    "dynamic": {
-                        "JSESSIONID": {
-                            "login" : "return"
+            {
+                "name": "endTask",
+                "config": {
+                    "method": "PUT",
+                    "url": "{url}/API/bpm/task/{taskInstanceId}",
+                    "cookie": {
+                        "dynamic": {
+                            "JSESSIONID": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "header": {
-                    "dynamic": {
-                        "X-Bonita-API-Token": {
-                            "login" : "return"
+                    },
+                    "header": {
+                        "dynamic": {
+                            "X-Bonita-API-Token": {
+                                "login": "return"
+                            }
                         }
-                    }
-                },
-                "param" : [],
-                "body" : [
-                    {"state" :  "completed"}
-                ]
+                    },
+                    "param": [],
+                    "body": [
+                        {
+                            "state": "completed"
+                        }
+                    ]
+                }
             }
-        }
+        ]
     }
 ]

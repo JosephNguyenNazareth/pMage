@@ -642,10 +642,25 @@ public class ConnectorService {
 
         // transfer the task list into NLP engine to get the keywords
         List<String> keywordList = extractKeywords(taskList);
+
+        // read app event
+        JSONObject appConfig = connector.getAppConfig().getConfig();
+        JSONArray listAppEvent = appConfig.getJSONArray("action");
+
+        // read pms event
+        JSONObject pmsConfig = connector.getPmsConfig().getConfig();
+        JSONArray listPmsEvent = pmsConfig.getJSONArray("api_info");
+
         List<ActionEvent> listActionEvent = new ArrayList<>();
         for (int i = 0; i < taskList.size(); i++) {
-            ActionEvent actionEvent = new ActionEvent("push-commit", keywordList.get(i), "endTask", taskList.get(i));
-            listActionEvent.add(actionEvent);
+            for (int j = 0; j < listAppEvent.length(); j++) {
+                for (int k = 0; k < listPmsEvent.length(); k++) {
+                    String appEvent = listAppEvent.getJSONObject(j).get("name").toString();
+                    String pmsEvent = listPmsEvent.getJSONObject(k).get("name").toString();
+                    ActionEvent actionEvent = new ActionEvent(appEvent, keywordList.get(i), pmsEvent, taskList.get(i));
+                    listActionEvent.add(actionEvent);
+                }
+            }
         }
 
         // generate the action linkage table
