@@ -4,6 +4,7 @@ import com.pmsconnect.mage.connector.Connector;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class Bridge {
     // app connection
@@ -20,6 +21,7 @@ public class Bridge {
     private String pmsUrl;
     private String processDef;
     private String processId;
+    private List<String> processDesignPaths;
 
     public Bridge() { this.loadProperties(); }
 
@@ -35,7 +37,7 @@ public class Bridge {
         this.pmsUrl = pmsUrl;
         this.processDef = processDef;
         this.processId = processId;
-        this.loadProperties();
+        //this.loadProperties();
     }
 
 //    public Bridge(Connector baseConnector, PMSConnection pmsConnection) {
@@ -138,6 +140,14 @@ public class Bridge {
 
     public void setProcessDef(String processDef) {
         this.processDef = processDef;
+    }
+
+    public List<String> getProcessDesignPaths() {
+        return processDesignPaths;
+    }
+
+    public void setProcessDesignPaths(List<String> processDesignPaths) {
+        this.processDesignPaths = processDesignPaths;
     }
 
     public void loadProperties() {

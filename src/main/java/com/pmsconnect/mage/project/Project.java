@@ -87,4 +87,15 @@ public class Project {
     public void addCoordinationPoint(CoordinationPair coordinationPair) {
         this.coordinationPoints.add(coordinationPair);
     }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "projectId='" + projectId + '\'' +
+                ", projectManager='" + projectManager + '\'' +
+                ", participatingUserIds=" + participatingUserIds +
+                ", participateConnectionIds=" + participateConnectionIds +
+                ", coordinationPoints=" + coordinationPoints +
+                '}';
+    }
 }

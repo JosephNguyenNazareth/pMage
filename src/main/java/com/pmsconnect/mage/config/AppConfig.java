@@ -35,6 +35,12 @@ public class AppConfig {
         this.readConfig();
     }
 
+    public AppConfig(String configPath, String projectLink) {
+        this.configPath = configPath;
+        this.projectLink = projectLink;
+        this.readConfig();
+    }
+
     public AppConfig(String configPath, String projectLink, JSONObject config) {
         this.projectLink = projectLink;
         this.config = config;

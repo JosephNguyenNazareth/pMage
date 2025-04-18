@@ -1,7 +1,5 @@
 package com.pmsconnect.mage.project;
 
-import com.pmsconnect.mage.project.coordination.ActivityPair;
-import com.pmsconnect.mage.project.coordination.ArtifactPair;
 import com.pmsconnect.mage.project.coordination.CoordinationPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,14 +44,9 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
-    public void addPair(String projectId, String predecessorProcess, String successorProcess, String preA, String preAState, String sucA, String sucAState) {
+    public void addPair(String projectId, String predecessorProcess, String successorProcess, String prePoint, String prePointState, String sucPoint, String sucPointState) {
         Project project = this.getProject(projectId);
-        CoordinationPair pair;
-        if (!preAState.isEmpty() && !sucAState.isEmpty()) {
-            pair = new ArtifactPair(predecessorProcess, successorProcess, preA, preAState, sucA, sucAState);
-        } else {
-            pair = new ActivityPair(predecessorProcess, successorProcess, preA, sucA);
-        }
+        CoordinationPair pair = new CoordinationPair(predecessorProcess, successorProcess, prePoint, prePointState, sucPoint, sucPointState);
         project.addCoordinationPoint(pair);
         projectRepository.save(project);
     }

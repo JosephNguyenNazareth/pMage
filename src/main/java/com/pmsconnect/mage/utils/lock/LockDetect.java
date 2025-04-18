@@ -1,7 +1,6 @@
 package com.pmsconnect.mage.utils.lock;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class LockDetect {
     // directed graph
@@ -56,6 +55,39 @@ public class LockDetect {
                 return true; // Cycle found
 
         return false; // No cycle found
+    }
+
+    // apply for string node
+    private static boolean isCyclicUtil(Map<String, List<String>> adj, String u, Set<String> visited, Set<String> recStack) {
+        if (recStack.contains(u))
+            return true;
+
+        if (visited.contains(u))
+            return false;
+
+        visited.add(u);
+        recStack.add(u);
+
+        List<String> neighbors = adj.getOrDefault(u, Collections.emptyList());
+        for (String v : neighbors) {
+            if (isCyclicUtil(adj, v, visited, recStack))
+                return true;
+        }
+
+        recStack.remove(u);
+        return false;
+    }
+
+    public static boolean isCyclic(Map<String, List<String>> adj) {
+        Set<String> visited = new HashSet<>();
+        Set<String> recStack = new HashSet<>();
+
+        for (String node : adj.keySet()) {
+            if (!visited.contains(node) && isCyclicUtil(adj, node, visited, recStack))
+                return true;
+        }
+
+        return false;
     }
 
     public static void main(String[] args)

@@ -53,7 +53,7 @@ public class Connector {
         this.monitoring = false;
         this.bridge = bridge;
         this.loadProperties();
-        this.appConfig = new AppConfig(System.getProperty("appconfig"));
+        this.appConfig = new AppConfig(System.getProperty("appconfig"), this.bridge.getProjectLink());
         this.pmsConfig = new PmsConfig(System.getProperty("pmsconfig"), this.getBridge().getPmsName());
         this.artifactPool = new HashMap<>();
     }
