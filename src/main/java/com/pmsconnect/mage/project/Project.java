@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Document(collection = "project")
@@ -16,7 +17,7 @@ public class Project {
     private String projectManager;
     private List<String> participatingUserIds;
     private List<String> participateConnectionIds;
-    private List<CoordinationPair> coordinationPoints;
+    private Map<String, CoordinationPair> coordinationPoints;
 
     public Project(String projectManager) {
         this.projectId = UUID.randomUUID().toString();
@@ -76,16 +77,16 @@ public class Project {
         this.projectManager = projectManager;
     }
 
-    public List<CoordinationPair> getCoordinationPoints() {
+    public Map<String, CoordinationPair> getCoordinationPoints() {
         return coordinationPoints;
     }
 
-    public void setCoordinationPoints(List<CoordinationPair> coordinationPoints) {
+    public void setCoordinationPoints(Map<String, CoordinationPair> coordinationPoints) {
         this.coordinationPoints = coordinationPoints;
     }
 
-    public void addCoordinationPoint(CoordinationPair coordinationPair) {
-        this.coordinationPoints.add(coordinationPair);
+    public void addCoordinationPoint(String predecessorPoint, CoordinationPair coordinationPair) {
+        this.coordinationPoints.put(predecessorPoint, coordinationPair);
     }
 
     @Override

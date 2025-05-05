@@ -110,8 +110,8 @@ public class ConnectorController {
 
     // auto generate the keyword using information form connected process instance
     @GetMapping(path = "{connectorId}/generate-table")
-    public String generateActionTable(@PathVariable("connectorId") String connectorId) {
-        return connectorService.generateActionEventTable(connectorId);
+    public String generateActionLinkage(@PathVariable("connectorId") String connectorId) {
+        return connectorService.generateActionLinkage(connectorId);
     }
 
     @GetMapping(path = "{connectorId}/history")

@@ -1,7 +1,13 @@
 package com.pmsconnect.mage.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Charsets;
+import com.pmsconnect.mage.connector.Connector;
 import com.pmsconnect.mage.user.Bridge;
 import com.pmsconnect.mage.utils.ActionEvent;
+import com.pmsconnect.mage.utils.LogPattern;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -12,13 +18,15 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.FileReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
 
 public class AppConfig {
     private String projectLink;
@@ -105,41 +113,101 @@ public class AppConfig {
         return null;
     }
 
+    public Map<String, String> emitAppEvent(Connector connector, String appEvent, List<String> contextInfoList) {
+        JSONArray appActions = this.config.getJSONArray("event");
 
-    private String buildAPILink(String projectLink, JSONObject currentConfig, String targetAction) {
-        JSONArray appActions = currentConfig.getJSONArray("action");
-        JSONObject triggerAction = new JSONObject();
-
-        int userNameIndex = -1; int projectNameIndex = -1;
-        for (int i = 0, size = appActions.length(); i < size; i++){
+        for (int i = 0; i < appActions.length(); i++) {
             JSONObject action = appActions.getJSONObject(i);
-            if (action.getString("name").equals(targetAction)) {
-                triggerAction = action;
-                String[] projectLinkPattern = action.getString("projectLink").split("/");
-                userNameIndex = Arrays.binarySearch(projectLinkPattern, "{userNameApp}");
-                projectNameIndex = Arrays.binarySearch(projectLinkPattern, "{projectName}");
+            if (!action.getString("name").equals(appEvent)) continue;
+
+            String method = action.getString("method");
+            String location = resolveLocation(action.getString("apiInfo"), connector);
+
+            switch (method) {
+                case "LOG":
+                    return handleLogEvent(location, action.getString("important"), contextInfoList);
+
+                case "GET":
+                    return handleGetEvent(location, action.getJSONObject("important"), contextInfoList, connector);
+
+                default:
+                    // Optional: log unsupported method
+                    break;
             }
         }
-
-        String[] projectLinkComponents = projectLink.replace("https://","").replace("http://", "")
-                .split("/");
-        if ((userNameIndex != -1) && (projectNameIndex != -1)){
-            String userNameApp = projectLinkComponents[userNameIndex];
-            String projectName = projectLinkComponents[projectNameIndex];
-            String apiInfo =  triggerAction.getString("apiInfo");
-            if (apiInfo.contains("{userNameApp}"))
-                apiInfo = apiInfo.replace("{userNameApp}", userNameApp);
-            if (apiInfo.contains("{projectName}"))
-                apiInfo = apiInfo.replace("{projectName}", userNameApp);
-
-            return apiInfo;
-        }
-        return "";
+        return null;
     }
+
+    private String resolveLocation(String location, Connector connector) {
+        return location
+                .replace("{userNameApp}", connector.getBridge().getUserNameApp())
+                .replace("{projectName}", connector.getBridge().getProcessDef());
+    }
+
+    private Map<String, String> handleLogEvent(String location, String template, List<String> contextInfoList) {
+        LogPattern logPattern = new LogPattern(template);
+
+        try {
+            List<String> logLines = Files.readAllLines(new File(location).toPath(), Charsets.UTF_8);
+            for (String log : logLines) {
+                Matcher matcher = logPattern.getPattern().matcher(log);
+                if (matcher.matches()) {
+                    Map<String, String> extracted = extractMatchedGroups(matcher, logPattern);
+                    if (contextInfoList.contains(extracted.get("task"))) {
+                        return extracted;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace(); // Consider logging framework
+        }
+        return null;
+    }
+
+    private Map<String, String> handleGetEvent(String location, JSONObject template, List<String> contextInfoList, Connector connector) {
+        Object appEventData = this.callAPI(location, this.config, connector.getBridge());
+
+        if (appEventData instanceof JSONArray) {
+            JSONArray jsonArray = (JSONArray) appEventData;
+            for (int j = 0; j < jsonArray.length(); j++) {
+                JSONObject obj = jsonArray.getJSONObject(j);
+                Map<String, String> result = tryExtractMatch(obj, template, contextInfoList);
+                if (result != null) return result;
+            }
+        } else if (appEventData instanceof JSONObject) {
+            JSONObject jsonObj = (JSONObject) appEventData;
+            return tryExtractMatch(jsonObj, template, contextInfoList);
+        }
+        return null;
+    }
+
+    private Map<String, String> tryExtractMatch(JSONObject obj, JSONObject template, List<String> contextInfoList) {
+        try {
+            Map<String, String> fields = this.extractFields(obj, template);
+            if (contextInfoList.contains(fields.get("task"))) {
+                return fields;
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e); // Consider handling more gracefully
+        }
+        return null;
+    }
+
+    private Map<String, String> extractMatchedGroups(Matcher matcher, LogPattern logPattern) {
+        Map<String, String> extracted = new LinkedHashMap<>();
+        List<String> groupNames = logPattern.getGroupNames();
+        for (int i = 0; i < groupNames.size(); i++) {
+            extracted.put(groupNames.get(i), matcher.group(i + 1));
+        }
+        return extracted;
+    }
+
 
     private JSONArray callAPI(String apiLink, JSONObject currentConfig, Bridge bridge) {
         HttpClient client = HttpClients.createDefault();
         URIBuilder builder = null;
+
+        // assuming all the application having the same authentication protocol ???
         String auth = bridge.getUserNameApp() + ":" + bridge.getPasswordApp();
         byte[] encodedAuth = Base64.getEncoder().encode(
                 auth.getBytes(StandardCharsets.ISO_8859_1));
@@ -187,6 +255,38 @@ public class AppConfig {
         return result;
     }
 
+    private Map<String, String> extractFields(JSONObject jsonObject, JSONObject jsonTemplate) throws JsonProcessingException {
+        // transform the data template from JSON to map
+        Map<String, String> template = new HashMap<>();
+        Iterator<String> keys = jsonTemplate.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            template.put(key, jsonTemplate.get(key).toString());
+        }
+
+        // create the path for reading the data from extracted template
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readTree(jsonObject.toString());
+
+        Map<String, String> result = new HashMap<>();
+        for (Map.Entry<String, String> entry : template.entrySet()) {
+            String outputKey = entry.getKey();
+            String path = entry.getValue();
+            String[] parts = path.split("\\|");
+
+            JsonNode current = jsonNode;
+            for (String part : parts) {
+                if (current != null)
+                    current = current.get(part);
+                else
+                    break;
+            }
+            result.put(outputKey, current != null ? current.asText() : null);
+        }
+
+        return result;
+    }
+
     // TODO: revision
     private List<Dictionary<String, String>> extractInfo(String projectLink, JSONArray originMessage, JSONObject currentConfig) {
         JSONObject messageInfoConfig = currentConfig.getJSONObject("extraInfo");
@@ -212,20 +312,20 @@ public class AppConfig {
     public List<Dictionary<String, String>> getLatestTrigger(Boolean takeAll, List<ActionEvent> actionEvents, Bridge bridge) {
         List<Dictionary<String, String>> extractTriggerActions = new ArrayList<>();
 
-        JSONObject repoDetected = this.getAppFromLink(this.projectLink);
-
-        if (repoDetected == null)
-            return null;
+//        JSONObject repoDetected = this.getAppFromLink(this.projectLink);
+//
+//        if (repoDetected == null)
+//            return null;
 
         List<String> actionList = new ArrayList<>();
         for (ActionEvent actionEvent: actionEvents) {
-            if (!actionList.contains(actionEvent.getAction()))
-                actionList.add(actionEvent.getAction());
+            if (!actionList.contains(actionEvent.getAppEvent()))
+                actionList.add(actionEvent.getAppEvent());
         }
 
         for (String action: actionList) {
-            String apiLink = this.buildAPILink(this.projectLink, repoDetected, action);
-            JSONArray originalTriggers = this.callAPI(apiLink, repoDetected, bridge);
+            String apiLink = this.buildAPILink(this.projectLink, action);
+            JSONArray originalTriggers = this.callAPI(apiLink, this.config, bridge);
 
             if (!takeAll) {
                 assert originalTriggers != null;
@@ -235,7 +335,7 @@ public class AppConfig {
             }
 
             assert originalTriggers != null;
-            extractTriggerActions.addAll(this.extractInfo(projectLink, originalTriggers, repoDetected));
+            extractTriggerActions.addAll(this.extractInfo(projectLink, originalTriggers, this.config));
         }
 
         return extractTriggerActions;

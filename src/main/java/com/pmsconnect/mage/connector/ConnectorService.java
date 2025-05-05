@@ -548,7 +548,7 @@ public class ConnectorService {
                 updateActionEventList.add(actionEvent);
         }
 
-        connector.setActionEventTable(updateActionEventList);
+        connector.setActionLinkage(updateActionEventList);
         connectorRepository.save(connector);
     }
 
@@ -632,7 +632,7 @@ public class ConnectorService {
         }
     }
 
-    public String generateActionEventTable(String connectorId) {
+    public String generateActionLinkage(String connectorId) {
         Connector connector = connectorRepository.findById(connectorId).orElseThrow(() -> new IllegalStateException("Connector with id " + connectorId + " does not exist."));
 
         // call get process instance from the pms
@@ -679,7 +679,7 @@ public class ConnectorService {
     public void loadHistoryCommit(String connectorId) {
         Connector connector = connectorRepository.findById(connectorId).orElseThrow(() -> new IllegalStateException("Connector with id " + connectorId + " does not exist."));
         connector.getAppConfig().setProjectLink(connector.getBridge().getProjectLink());
-        List<Dictionary<String, String>> commitList = connector.getAppConfig().getLatestTrigger(true, connector.getActionEventTable(), connector.getBridge());
+        List<Dictionary<String, String>> commitList = connector.getAppConfig().getLatestTrigger(true, connector.getActionLinkage(), connector.getBridge());
 
 
         for (Dictionary<String, String> commit : commitList) {

@@ -95,6 +95,8 @@ public class ProjectTest {
         Connector connectorP32 = new Connector(bridgeP32);
         connectorP32.getBridge().setProcessDesignPaths(Arrays.asList(new String[]{"../core_bape_web/src/main/resources/static/Monitoring/Teddy.xml"}));
 
+
+
         List<String> connectorBoards = Arrays.asList(new String[]{connectorP1.getId(), connectorP2.getId(), connectorP31.getId(), connectorP32.getId()});
         projectA.setParticipateConnectionIds(connectorBoards);
 
@@ -107,6 +109,7 @@ public class ProjectTest {
 
         List<CoordinationPair> coordinationTables = Arrays.asList(new CoordinationPair[]{pairP12, pairP23, pairP13});
         projectA.setCoordinationPoints(coordinationTables);
+
 
         // now convert the process design into graph
         GraphConvert graphP1 = new GraphConvertFromBape();

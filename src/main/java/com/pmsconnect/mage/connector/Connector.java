@@ -20,7 +20,8 @@ public class Connector {
     @Id
     private String id;
     private Bridge bridge;
-    private List<ActionEvent> actionEventTable;
+    private boolean isArtifactCentric;
+    private Map<String, List<ActionEvent>> actionLinkage;
     private String actionEventDescription;
     private List<Alignment> historyTriggerList;
     private Map<String, String> monitoringLog;
@@ -30,6 +31,7 @@ public class Connector {
     private String userName;
     private Map<String, Artifact> artifactPool;
     private List<TaskArtifact> taskArtifactList;
+    private List<String> publicTasks;
 
     public Connector() {
         this.loadProperties();
@@ -49,12 +51,15 @@ public class Connector {
         this.id = UUID.randomUUID().toString();
         this.historyTriggerList = new ArrayList<>();
         this.monitoringLog = new HashMap<>();
-        this.actionEventTable = new ArrayList<>();
         this.monitoring = false;
+        this.actionLinkage = new HashMap<>();
         this.bridge = bridge;
         this.loadProperties();
         this.appConfig = new AppConfig(System.getProperty("appconfig"), this.bridge.getProjectLink());
         this.pmsConfig = new PmsConfig(System.getProperty("pmsconfig"), this.getBridge().getPmsName());
+        this.isArtifactCentric = this.pmsConfig.isArtifactCentric();
+        if (!this.isArtifactCentric)
+            this.actionLinkage.put("ALL", new ArrayList<>());
         this.artifactPool = new HashMap<>();
     }
 
@@ -134,16 +139,20 @@ public class Connector {
         this.bridge = bridge;
     }
 
-    public List<ActionEvent> getActionEventTable() {
-        return actionEventTable;
+    public Map<String, List<ActionEvent>> getActionLinkage() {
+        return actionLinkage;
     }
 
-    public void addActionEvent(ActionEvent actionEvent) {
-        this.actionEventTable.add(actionEvent);
+    public void addActionEvent(String artifact, ActionEvent actionEvent) {
+        this.actionLinkage.computeIfAbsent(artifact, k -> new ArrayList<>()).add(actionEvent);
     }
 
-    public void setActionEventTable(List<ActionEvent> actionEventTable) {
-        this.actionEventTable = actionEventTable;
+    public void addActionEvent(String artifact, List<ActionEvent> actionEvent) {
+        this.actionLinkage.put(artifact, actionEvent);
+    }
+
+    public void setActionLinkage(Map<String, List<ActionEvent>> actionLinkage) {
+        this.actionLinkage = actionLinkage;
     }
 
     public String getActionEventDescription() {
@@ -178,9 +187,22 @@ public class Connector {
         this.artifactPool.put(name, new Artifact(name));
     }
 
-    public boolean existActionEventType(String eventType) {
-        for (ActionEvent actionEvent : this.getActionEventTable()) {
-            if (actionEvent.getEvent().equals(eventType))
+    public List<String> getPublicTasks() {
+        return publicTasks;
+    }
+
+    public void setPublicTasks(List<String> publicTasks) {
+        this.publicTasks = publicTasks;
+    }
+
+    public void addPublicTask(String publicTask) {
+        if (!this.publicTasks.contains(publicTask))
+            this.publicTasks.add(publicTask);
+    }
+
+    public boolean existActionEvent(String artifact, String appEvent, String pmsEvent) {
+        for (ActionEvent actionEvent : this.actionLinkage.get(artifact)) {
+            if (actionEvent.getPmsEvent().equals(pmsEvent) && actionEvent.getAppEvent().equals(appEvent))
                 return true;
         }
         return false;

@@ -14,8 +14,8 @@ public class GraphConvertFromCoordinationPair {
         this.graph = new GraphForPMage();
     }
 
-    public void convert(List<CoordinationPair> coordinationPairList) {
-        for (CoordinationPair coordinationPair: coordinationPairList) {
+    public void convert(Map<String, CoordinationPair> coordinationPairList) {
+        for (CoordinationPair coordinationPair: coordinationPairList.values()) {
             graph.addEdge(coordinationPair.getPredecessorPoint(), coordinationPair.getSuccessorPoint());
         }
     }

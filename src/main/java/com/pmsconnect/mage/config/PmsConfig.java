@@ -58,6 +58,10 @@ public class PmsConfig {
         this.configPath = configPath;
     }
 
+    public boolean isArtifactCentric() {
+        return this.config.getBoolean("artifact-centric");
+    }
+
     public void readConfig() {
         try {
             String content = new String(Files.readAllBytes(Paths.get(this.configPath)));

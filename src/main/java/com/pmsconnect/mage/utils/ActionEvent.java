@@ -1,42 +1,42 @@
 package com.pmsconnect.mage.utils;
 
 public class ActionEvent {
-    private String action;
-    private String event;
-    private String actionDetail;
+    private String appEvent;
+    private String pmsEvent;
+    private String contextInfo;
     private String task;
 
     public ActionEvent() {
     }
 
-    public ActionEvent(String action, String actionDetail, String event, String task) {
-        this.action = action;
-        this.actionDetail = actionDetail;
-        this.event = event;
+    public ActionEvent(String action, String contextInfo, String pmsEvent, String task) {
+        this.appEvent = action;
+        this.contextInfo = contextInfo;
+        this.pmsEvent = pmsEvent;
         this.task = task;
     }
 
     public ActionEvent(String[] actionEventToken) {
-        this.action = actionEventToken[0];
-        this.actionDetail = actionEventToken[1];
-        this.event = actionEventToken[2];
+        this.appEvent = actionEventToken[0];
+        this.contextInfo = actionEventToken[1];
+        this.pmsEvent = actionEventToken[2];
         this.task = actionEventToken[3];
     }
 
-    public String getAction() {
-        return action;
+    public String getAppEvent() {
+        return appEvent;
     }
 
-    public void setAction(String action) {
-        this.action = action;
+    public void setAppEvent(String appEvent) {
+        this.appEvent = appEvent;
     }
 
-    public String getEvent() {
-        return event;
+    public String getPmsEvent() {
+        return pmsEvent;
     }
 
-    public void setEvent(String event) {
-        this.event = event;
+    public void setPmsEvent(String pmsEvent) {
+        this.pmsEvent = pmsEvent;
     }
 
     public String getTask() {
@@ -47,12 +47,12 @@ public class ActionEvent {
         this.task = task;
     }
 
-    public String getActionDetail() {
-        return actionDetail;
+    public String getContextInfo() {
+        return contextInfo;
     }
 
-    public void setActionDetail(String actionDetail) {
-        this.actionDetail = actionDetail;
+    public void setContextInfo(String contextInfo) {
+        this.contextInfo = contextInfo;
     }
 
     @Override
@@ -62,14 +62,14 @@ public class ActionEvent {
         if (other == this)
             return true;
         ActionEvent otherActionEvent = (ActionEvent) other;
-        return otherActionEvent.getAction().equals(this.getAction())
-                && otherActionEvent.getEvent().equals(this.getEvent())
-                && otherActionEvent.getActionDetail().equals(this.getActionDetail())
+        return otherActionEvent.getAppEvent().equals(this.getAppEvent())
+                && otherActionEvent.getPmsEvent().equals(this.getPmsEvent())
+                && otherActionEvent.getContextInfo().equals(this.getContextInfo())
                 && otherActionEvent.getTask().equals(this.getTask());
     }
 
     @Override
     public String toString() {
-        return action + ", " + actionDetail + ", " + event + ", " + task;
+        return appEvent + ", " + contextInfo + ", " + pmsEvent + ", " + task;
     }
 }
