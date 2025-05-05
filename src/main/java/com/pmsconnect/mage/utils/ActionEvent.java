@@ -5,6 +5,7 @@ public class ActionEvent {
     private String pmsEvent;
     private String contextInfo;
     private String task;
+    private String status;
 
     public ActionEvent() {
     }
@@ -14,6 +15,7 @@ public class ActionEvent {
         this.contextInfo = contextInfo;
         this.pmsEvent = pmsEvent;
         this.task = task;
+        this.status = "ready";
     }
 
     public ActionEvent(String[] actionEventToken) {
@@ -21,6 +23,7 @@ public class ActionEvent {
         this.contextInfo = actionEventToken[1];
         this.pmsEvent = actionEventToken[2];
         this.task = actionEventToken[3];
+        this.status = "ready";
     }
 
     public String getAppEvent() {
@@ -55,6 +58,14 @@ public class ActionEvent {
         this.contextInfo = contextInfo;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof ActionEvent))
@@ -70,6 +81,6 @@ public class ActionEvent {
 
     @Override
     public String toString() {
-        return appEvent + ", " + contextInfo + ", " + pmsEvent + ", " + task;
+        return appEvent + ", " + contextInfo + ", " + pmsEvent + ", " + task + ", " + status;
     }
 }

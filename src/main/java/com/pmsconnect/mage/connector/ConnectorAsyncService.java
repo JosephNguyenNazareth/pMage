@@ -73,15 +73,33 @@ public class ConnectorAsyncService {
                 // however, we should know which task is currently available to be done ???
                 Map<String, List<ActionEvent>> actionLinkage = connector.getActionLinkage();
                 for (String artifact : actionLinkage.keySet()) {
-                    List<ActionEvent> artifactActionLinkage = actionLinkage.get(artifact);
+                    List<ActionEvent> allArtifactActionLinkage = actionLinkage.get(artifact);
+
+                    // select only untriggered app event to check
+                    List<ActionEvent> artifactActionLinkage = new ArrayList<>();
+                    for (ActionEvent actionEvent: allArtifactActionLinkage) {
+                        if (actionEvent.getStatus().equals("ready"))
+                            artifactActionLinkage.add(actionEvent);
+                    }
 
                     Map<String, List<String>> appEventChecklist = new HashMap<>();
                     for (ActionEvent actionEvent : artifactActionLinkage) {
                         appEventChecklist.computeIfAbsent(actionEvent.getAppEvent(), k -> new ArrayList<>()).add(actionEvent.getContextInfo());
                     }
 
+                    // notation : the list of app event check list contains only untriggered events
                     for (String appEvent : appEventChecklist.keySet()) {
-                        this.callAppEvent(connector.getAppConfig(), appEvent, appEventChecklist.get(appEvent));
+                        Map<String, String> appEventTriggered = connector.getAppConfig().emitAppEvent(connector, appEvent, appEventChecklist.get(appEvent));
+                        // if there is new triggered app event
+                        if (appEventTriggered != null) {
+                            for(ActionEvent actionEvent : artifactActionLinkage) {
+                                if (actionEvent.getAppEvent().equals(appEvent) &&
+                                    actionEvent.getContextInfo().equals(appEventTriggered.get("task"))) {
+                                    // call corresponding PMS action
+                                    connector.getPmsConfig().callApiWithDependencies(actionEvent.getPmsEvent(), connector.getBridge().toMap());
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -98,12 +116,7 @@ public class ConnectorAsyncService {
         }
     }
 
-    private void callAppEvent(AppConfig appConfig, String appEvent, List<String> contextInfoList) {
-        // if the context info is found from appEvent, call corresponding API to pms
-        appConfig.buildAPILink("", appConfig.getConfig(), appEvent);
-    }
-
-       public void checkingPMSLog(Connector connector) {
+    public void checkingPMSLog(Connector connector) {
         // retrieve pms log
         HttpClient client = HttpClients.createDefault();
         String log = "";

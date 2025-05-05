@@ -4,7 +4,9 @@ import com.pmsconnect.mage.connector.Connector;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Bridge {
     // app connection
@@ -165,5 +167,21 @@ public class Bridge {
 
     public String getAppConfig() {
         return System.getProperty("appconfig");
+    }
+
+    public Map<String, String> toMap() {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("appName", appName);
+        map.put("userNameApp", userNameApp);
+        map.put("passwordApp", passwordApp);
+        map.put("projectLink", projectLink);
+        map.put("projectDir", projectDir);
+        map.put("pmsName", pmsName);
+        map.put("userNamePms", userNamePms);
+        map.put("passwordPms", passwordPms);
+        map.put("pmsUrl", pmsUrl);
+        map.put("processDef", processDef);
+        map.put("processId", processId);
+        return map;
     }
 }

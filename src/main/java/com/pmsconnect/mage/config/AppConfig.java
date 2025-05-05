@@ -238,23 +238,6 @@ public class AppConfig {
         }
     }
 
-    private String traverseMessageLevel(JSONObject message, String path) {
-        JSONObject tmp = new JSONObject(message);
-        String result = "";
-        String[] levels = path.split("\\|");
-
-        for (String keyword : levels) {
-            if (tmp.keySet().contains(keyword)) {
-                if (tmp.get(keyword) instanceof String)
-                    result = tmp.get(keyword).toString();
-                else
-                    tmp = tmp.getJSONObject(keyword);
-            }
-        }
-
-        return result;
-    }
-
     private Map<String, String> extractFields(JSONObject jsonObject, JSONObject jsonTemplate) throws JsonProcessingException {
         // transform the data template from JSON to map
         Map<String, String> template = new HashMap<>();
@@ -285,59 +268,5 @@ public class AppConfig {
         }
 
         return result;
-    }
-
-    // TODO: revision
-    private List<Dictionary<String, String>> extractInfo(String projectLink, JSONArray originMessage, JSONObject currentConfig) {
-        JSONObject messageInfoConfig = currentConfig.getJSONObject("extraInfo");
-        List<Dictionary<String, String>> extractTriggerActions = new ArrayList<>();
-
-        for (int i = 0; i < originMessage.length(); i++) {
-            JSONObject triggeredAction = originMessage.getJSONObject(i);
-            Dictionary<String, String> extractInfo = new Hashtable<>();
-
-            extractInfo.put("id", this.traverseMessageLevel(triggeredAction, messageInfoConfig.getString("id")));
-            extractInfo.put("created_at", this.traverseMessageLevel(triggeredAction, messageInfoConfig.getString("time")));
-            extractInfo.put("task", this.traverseMessageLevel(triggeredAction, messageInfoConfig.getString("task")).trim().replace("'", "\""));
-            extractInfo.put("actor", this.traverseMessageLevel(triggeredAction, messageInfoConfig.getString("actor")).trim());
-            extractInfo.put("project_id", projectLink);
-            extractInfo.put("app", currentConfig.getString("app"));
-
-            extractTriggerActions.add(extractInfo);
-        }
-
-        return extractTriggerActions;
-    }
-
-    public List<Dictionary<String, String>> getLatestTrigger(Boolean takeAll, List<ActionEvent> actionEvents, Bridge bridge) {
-        List<Dictionary<String, String>> extractTriggerActions = new ArrayList<>();
-
-//        JSONObject repoDetected = this.getAppFromLink(this.projectLink);
-//
-//        if (repoDetected == null)
-//            return null;
-
-        List<String> actionList = new ArrayList<>();
-        for (ActionEvent actionEvent: actionEvents) {
-            if (!actionList.contains(actionEvent.getAppEvent()))
-                actionList.add(actionEvent.getAppEvent());
-        }
-
-        for (String action: actionList) {
-            String apiLink = this.buildAPILink(this.projectLink, action);
-            JSONArray originalTriggers = this.callAPI(apiLink, this.config, bridge);
-
-            if (!takeAll) {
-                assert originalTriggers != null;
-                JSONObject tmp = originalTriggers.getJSONObject(0);
-                originalTriggers = new JSONArray();
-                originalTriggers.put(tmp);
-            }
-
-            assert originalTriggers != null;
-            extractTriggerActions.addAll(this.extractInfo(projectLink, originalTriggers, this.config));
-        }
-
-        return extractTriggerActions;
     }
 }
