@@ -8,9 +8,7 @@ import com.pmsconnect.mage.utils.lock.LockDetect;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,9 +19,6 @@ public class ProjectTest {
     public void createProject() {
         List<String> participant = Arrays.asList(new String[]{"sunny", "cherry", "teddy"});
         projectA.setParticipatingUserIds(participant);
-
-        List<String> connections = Arrays.asList(new String[]{"s11", "c11", "t11", "t21"});
-        projectA.setParticipateConnectionIds(connections);
     }
 
     @Test
@@ -43,8 +38,11 @@ public class ProjectTest {
         Connector connectorP31 = new Connector(bridgeP31);
         Connector connectorP32 = new Connector(bridgeP32);
 
-        List<String> connectorBoards = Arrays.asList(new String[]{connectorP1.getId(), connectorP2.getId(), connectorP31.getId(), connectorP32.getId()});
-        projectA.setParticipateConnectionIds(connectorBoards);
+        Map<String, String> connectorBoards = new HashMap<>();
+        connectorBoards.put(connectorP1.getId(), "P1");
+        connectorBoards.put(connectorP2.getId(), "P2");
+        connectorBoards.put(connectorP31.getId(), "P3");
+        connectorBoards.put(connectorP32.getId(), "P3");
 
         CoordinationPair pairP12 = new CoordinationPair("P1", "P2",
                 "T2", ActivityState.FINISHED, "T3", ActivityState.STARTED);
@@ -95,9 +93,12 @@ public class ProjectTest {
         Connector connectorP32 = new Connector(bridgeP32);
         connectorP32.getBridge().setProcessDesignPaths(Arrays.asList(new String[]{"../core_bape_web/src/main/resources/static/Monitoring/Teddy.xml"}));
 
+        Map<String, String> connectorBoards = new HashMap<>();
+        connectorBoards.put(connectorP1.getId(), "P1");
+        connectorBoards.put(connectorP2.getId(), "P2");
+        connectorBoards.put(connectorP31.getId(), "P3");
+        connectorBoards.put(connectorP32.getId(), "P3");
 
-
-        List<String> connectorBoards = Arrays.asList(new String[]{connectorP1.getId(), connectorP2.getId(), connectorP31.getId(), connectorP32.getId()});
         projectA.setParticipateConnectionIds(connectorBoards);
 
         CoordinationPair pairP12 = new CoordinationPair("P1", "P2",
@@ -107,7 +108,10 @@ public class ProjectTest {
         CoordinationPair pairP13 = new CoordinationPair("P3", "P1",
                 "T6", ActivityState.STARTED, "T2", ActivityState.STARTED);
 
-        List<CoordinationPair> coordinationTables = Arrays.asList(new CoordinationPair[]{pairP12, pairP23, pairP13});
+        List<CoordinationPair> coordinationTables = new ArrayList<>();
+        coordinationTables.add(pairP12);
+        coordinationTables.add(pairP23);
+        coordinationTables.add(pairP13);
         projectA.setCoordinationPoints(coordinationTables);
 
 

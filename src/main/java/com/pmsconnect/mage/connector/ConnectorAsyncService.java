@@ -3,6 +3,10 @@ package com.pmsconnect.mage.connector;
 import com.pmsconnect.mage.casestudy.PreDefinedArtifactInstance;
 import com.pmsconnect.mage.config.AppConfig;
 import com.pmsconnect.mage.kie.KieServer;
+import com.pmsconnect.mage.project.Project;
+import com.pmsconnect.mage.project.ProjectRepository;
+import com.pmsconnect.mage.project.coordination.ActivityState;
+import com.pmsconnect.mage.project.coordination.CoordinationPair;
 import com.pmsconnect.mage.utils.ActionEvent;
 import com.pmsconnect.mage.utils.Alignment;
 
@@ -30,10 +34,12 @@ import java.util.stream.Collectors;
 @Service
 public class ConnectorAsyncService {
     private final ConnectorRepository connectorRepository;
+    private final ProjectRepository projectRepository;
 
     @Autowired
-    public ConnectorAsyncService (ConnectorRepository mageRepository) {
+    public ConnectorAsyncService (ConnectorRepository mageRepository, ProjectRepository projectRepository) {
         this.connectorRepository = mageRepository;
+        this.projectRepository = projectRepository;
     }
 
     @Async
@@ -92,13 +98,65 @@ public class ConnectorAsyncService {
                         Map<String, String> appEventTriggered = connector.getAppConfig().emitAppEvent(connector, appEvent, appEventChecklist.get(appEvent));
                         // if there is new triggered app event
                         if (appEventTriggered != null) {
-                            for(ActionEvent actionEvent : artifactActionLinkage) {
-                                if (actionEvent.getAppEvent().equals(appEvent) &&
-                                    actionEvent.getContextInfo().equals(appEventTriggered.get("task"))) {
-                                    // call corresponding PMS action
-                                    connector.getPmsConfig().callApiWithDependencies(actionEvent.getPmsEvent(), connector.getBridge().toMap());
+                            for (ActionEvent actionEvent : artifactActionLinkage) {
+                                boolean isMatchingEvent = actionEvent.getAppEvent().equals(appEvent) &&
+                                        actionEvent.getContextInfo().equals(appEventTriggered.get("task"));
+                                if (!isMatchingEvent) continue;
+
+                                ActionEvent actionEventTriggered = actionEvent;
+
+                                Project linkedProject = projectRepository.findById(connector.getLinkedProjectId())
+                                        .orElseThrow(() -> new IllegalStateException(
+                                                "Connector with id " + connector.getLinkedProjectId() + " does not exist."));
+
+                                // we need to check with the coordination pair as well, before calling PMS action
+                                boolean validated = linkedProject.getCoordinationPoints().stream()
+                                        .filter(pair -> pair.getSuccessorPoint().equals(actionEventTriggered.getTask()))
+                                        .allMatch(pair -> {
+                                            boolean ok = pair.getPrePointDesiredState().equals(pair.getPrePointActualState());
+                                            // if the current task is the successor of a coordination pair
+                                            // verify if its corresponding predecessor's actual state meets the desired state
+                                            // if not, alarm user about the issue
+                                            if (!ok) {
+                                                String error = String.format("Task %s is waiting for %s to be in state %s. Current state %s.",
+                                                        actionEventTriggered.getTask(),
+                                                        pair.getPredecessorPoint(),
+                                                        pair.getPrePointDesiredState(),
+                                                        pair.getPrePointActualState());
+                                                System.out.println(error);
+                                                connector.addMonitoringLog(error);
+                                            }
+                                            return ok;
+                                        });
+
+                                if (!validated) break;
+
+                                // Call PMS API
+                                connector.getPmsConfig().callApiWithDependencies(
+                                        actionEvent.getPmsEvent(), connector.getBridge().toMap());
+
+                                // Update coordination pair states
+                                for (CoordinationPair pair : linkedProject.getCoordinationPoints()) {
+                                    String task = actionEventTriggered.getTask();
+                                    String event = actionEventTriggered.getPmsEvent();
+
+                                    if (pair.getSuccessorPoint().equals(task)) {
+                                        if (event.equals("startTask"))
+                                            pair.setSucPointActualState(ActivityState.STARTED);
+                                        else if (event.equals("finishTask"))
+                                            pair.setSucPointActualState(ActivityState.FINISHED);
+                                    } else if (pair.getPredecessorPoint().equals(task)) {
+                                        if (event.equals("startTask"))
+                                            pair.setPrePointActualState(ActivityState.STARTED);
+                                        else if (event.equals("finishTask"))
+                                            pair.setPrePointActualState(ActivityState.FINISHED);
+                                    }
                                 }
+
+                                projectRepository.save(linkedProject);
+                                break;
                             }
+                            break;
                         }
                     }
                 }
@@ -106,10 +164,7 @@ public class ConnectorAsyncService {
                 // TODO: checking pms log to detect manual pms updates
                 this.checkingPMSLog(connector);
 
-                // TODO: if the task marked done by the PMS triggered a coordination pair
-                // TODO: to emit another event to the PMS of the following task
-
-                connector.addMonitoringLog(monitoringMess.toString());
+                    connector.addMonitoringLog(monitoringMess.toString());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

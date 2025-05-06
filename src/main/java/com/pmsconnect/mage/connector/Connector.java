@@ -32,6 +32,7 @@ public class Connector {
     private Map<String, Artifact> artifactPool;
     private List<TaskArtifact> taskArtifactList;
     private List<String> publicTasks;
+    private String linkedProjectId;
 
     public Connector() {
         this.loadProperties();
@@ -169,6 +170,14 @@ public class Connector {
 
     public void setActionEventDescription(String actionEventDescription) {
         this.actionEventDescription = actionEventDescription;
+    }
+
+    public String getLinkedProjectId() {
+        return linkedProjectId;
+    }
+
+    public void setLinkedProjectId(String linkedProjectId) {
+        this.linkedProjectId = linkedProjectId;
     }
 
     public Map<String, Artifact> getArtifactPool() {

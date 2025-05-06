@@ -203,49 +203,6 @@
         "activity_state" : {
             "started": "assigned",
             "finished": "completed"
-        },        "api_info": [
-        {
-            "name": "login",
-            "config": {
-                "method": "POST",
-                "url": "{url}/loginservice",
-                "header": {
-                    "fixed": {
-                        "Content-type": "application/x-www-form-urlencoded"
-                    }
-                },
-                "body": ["username", "password"],
-                "return": {
-                    "JSESSIONID": {
-                        "header": "Set-Cookie"
-                    },
-                    "X-Bonita-API-Token": {
-                        "header": "Set-Cookie"
-                    }
-                }
-            }
-        },
-        {
-            "name": "verify",
-            "config": {
-                "method": "GET",
-                "url": "{url}/API/bpm/case/{processInstanceId}",
-                "cookie": {
-                    "dynamic": {
-                        "JSESSIONID": {
-                            "login": "return"
-                        }
-                    }
-                },
-                "header": {
-                    "dynamic": {
-                        "X-Bonita-API-Token": {
-                            "login": "return"
-                        }
-                    }
-                },
-                "param": []
-            }
         },
         "artifact-centric": false,
         "api_info": [

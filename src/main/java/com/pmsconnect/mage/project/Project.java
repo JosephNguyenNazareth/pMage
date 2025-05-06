@@ -16,8 +16,8 @@ public class Project {
     private String projectId;
     private String projectManager;
     private List<String> participatingUserIds;
-    private List<String> participateConnectionIds;
-    private Map<String, CoordinationPair> coordinationPoints;
+    private Map<String, String> participateConnectionIds;
+    private List<CoordinationPair> coordinationPoints;
 
     public Project(String projectManager) {
         this.projectId = UUID.randomUUID().toString();
@@ -30,7 +30,7 @@ public class Project {
         this.participatingUserIds = participatingUserIds;
     }
 
-    public Project(String projectManager, List<String> participatingUserIds, List<String> participateConnectionIds) {
+    public Project(String projectManager, List<String> participatingUserIds, Map<String, String> participateConnectionIds) {
         this.projectId = UUID.randomUUID().toString();
         this.projectManager = projectManager;
         this.participatingUserIds = participatingUserIds;
@@ -61,32 +61,32 @@ public class Project {
         this.participatingUserIds.add(userId);
     }
 
-    public List<String> getParticipateConnectionIds() {
+    public Map<String, String> getParticipateConnectionIds() {
         return participateConnectionIds;
     }
 
-    public void setParticipateConnectionIds(List<String> participateConnectionIds) {
+    public void setParticipateConnectionIds(Map<String, String> participateConnectionIds) {
         this.participateConnectionIds = participateConnectionIds;
     }
 
-    public void addParticipatingConnectionId(String connectorId) {
-        this.participateConnectionIds.add(connectorId);
+    public void addParticipatingConnectionId(String processDef, String connectorId) {
+        this.participateConnectionIds.put(processDef, connectorId);
     }
 
     public void setProjectManager(String projectManager) {
         this.projectManager = projectManager;
     }
 
-    public Map<String, CoordinationPair> getCoordinationPoints() {
+    public List<CoordinationPair> getCoordinationPoints() {
         return coordinationPoints;
     }
 
-    public void setCoordinationPoints(Map<String, CoordinationPair> coordinationPoints) {
+    public void setCoordinationPoints(List<CoordinationPair> coordinationPoints) {
         this.coordinationPoints = coordinationPoints;
     }
 
-    public void addCoordinationPoint(String predecessorPoint, CoordinationPair coordinationPair) {
-        this.coordinationPoints.put(predecessorPoint, coordinationPair);
+    public void addCoordinationPoint(CoordinationPair coordinationPair) {
+        this.coordinationPoints.add(coordinationPair);
     }
 
     @Override

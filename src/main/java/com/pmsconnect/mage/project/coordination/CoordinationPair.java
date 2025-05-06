@@ -4,17 +4,21 @@ public class CoordinationPair {
     private String predecessorProcess;
     private String successorProcess;
     private String predecessorPoint;
-    private String prePointState;
+    private String prePointDesiredState;
+    private String prePointActualState;
     private String successorPoint;
-    private String sucPointState;
+    private String sucPointDesiredState;
+    private String sucPointActualState;
 
-    public CoordinationPair(String predecessorProcess, String successorProcess, String predecessorPoint, String prePointState, String successorPoint, String sucPointState) {
+    public CoordinationPair(String predecessorProcess, String successorProcess, String predecessorPoint, String prePointDesiredState, String successorPoint, String sucPointDesiredState) {
         this.predecessorProcess = predecessorProcess;
         this.successorProcess = successorProcess;
         this.predecessorPoint = predecessorPoint;
-        this.prePointState = prePointState;
+        this.prePointDesiredState = prePointDesiredState;
+        this.prePointActualState = ActivityState.UNKNOWN;
         this.successorPoint = successorPoint;
-        this.sucPointState = sucPointState;
+        this.sucPointDesiredState = sucPointDesiredState;
+        this.sucPointActualState = ActivityState.UNKNOWN;
     }
 
     public String getPredecessorProcess() {
@@ -41,12 +45,20 @@ public class CoordinationPair {
         this.predecessorPoint = predecessorPoint;
     }
 
-    public String getPrePointState() {
-        return prePointState;
+    public String getPrePointDesiredState() {
+        return prePointDesiredState;
     }
 
-    public void setPrePointState(String prePointState) {
-        this.prePointState = prePointState;
+    public void setPrePointDesiredState(String prePointDesiredState) {
+        this.prePointDesiredState = prePointDesiredState;
+    }
+
+    public String getPrePointActualState() {
+        return prePointActualState;
+    }
+
+    public void setPrePointActualState(String prePointActualState) {
+        this.prePointActualState = prePointActualState;
     }
 
     public String getSuccessorPoint() {
@@ -57,12 +69,20 @@ public class CoordinationPair {
         this.successorPoint = successorPoint;
     }
 
-    public String getSucPointState() {
-        return sucPointState;
+    public String getSucPointDesiredState() {
+        return sucPointDesiredState;
     }
 
-    public void setSucPointState(String sucPointState) {
-        this.sucPointState = sucPointState;
+    public void setSucPointDesiredState(String sucPointDesiredState) {
+        this.sucPointDesiredState = sucPointDesiredState;
+    }
+
+    public String getSucPointActualState() {
+        return sucPointActualState;
+    }
+
+    public void setSucPointActualState(String sucPointActualState) {
+        this.sucPointActualState = sucPointActualState;
     }
 
     @Override
@@ -71,9 +91,11 @@ public class CoordinationPair {
                 "predecessorProcess='" + predecessorProcess + '\'' +
                 ", successorProcess='" + successorProcess + '\'' +
                 ", predecessorPoint='" + predecessorPoint + '\'' +
-                ", prePointState='" + prePointState + '\'' +
+                ", prePointDesiredState='" + prePointDesiredState + '\'' +
+                ", prePointActualState='" + prePointActualState + '\'' +
                 ", successorPoint='" + successorPoint + '\'' +
-                ", sucPointState='" + sucPointState + '\'' +
+                ", sucPointDesiredState='" + sucPointDesiredState + '\'' +
+                ", sucPointActualState='" + sucPointActualState + '\'' +
                 '}';
     }
 }
