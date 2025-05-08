@@ -64,7 +64,7 @@ public class ProjectService {
     public void addPair(String projectId, String predecessorProcess, String successorProcess, String prePoint, String prePointState, String sucPoint, String sucPointState) {
         Project project = this.getProject(projectId);
         CoordinationPair pair = new CoordinationPair(predecessorProcess, successorProcess, prePoint, prePointState, sucPoint, sucPointState);
-        project.addCoordinationPoint(predecessorProcess, pair);
+        project.addCoordinationPoint(pair);
         projectRepository.save(project);
     }
 }

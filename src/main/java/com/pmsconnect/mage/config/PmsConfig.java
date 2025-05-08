@@ -1,15 +1,12 @@
 package com.pmsconnect.mage.config;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -19,10 +16,9 @@ public class PmsConfig {
     private String pms;
     private JSONObject config;
     private String configPath;
-    private final Map<String, Map<String, String>> returnValues = new HashMap<>();
+    private Map<String, Map<String, String>> returnValues = new HashMap<>();
 
     public PmsConfig() {
-        System.out.println("hello");
     }
 
     public PmsConfig(String configPath) {
@@ -63,6 +59,10 @@ public class PmsConfig {
 
     public void setConfigPath(String configPath) {
         this.configPath = configPath;
+    }
+
+    public Map<String, Map<String, String>> getReturnValues() {
+        return returnValues;
     }
 
     public boolean isArtifactCentric() {
@@ -126,7 +126,7 @@ public class PmsConfig {
         }
     }
 
-    private String callApi(String apiName, JSONObject apiConfig, Map<String, String> inputValues) throws IOException {
+    public String callApi(String apiName, JSONObject apiConfig, Map<String, String> inputValues) throws IOException {
         String method = apiConfig.getString("method");
         String urlStr = replacePlaceholders(apiConfig.getString("url"), inputValues);
 

@@ -44,8 +44,9 @@ public class ConnectorController {
 
     @PostMapping(path = "/add")
     public String addNewConnector(
+            @RequestParam String userName,
             @RequestBody Bridge bridge) {
-        return connectorService.addNewConnector(bridge, false);
+        return connectorService.addNewConnector(userName, bridge, false);
     }
 
     @PutMapping(path = "/update/{connectorId}")
@@ -71,13 +72,6 @@ public class ConnectorController {
         connectorService.deleteConnector(connectorId);
     }
 
-    @PutMapping(path = "{connectorId}/create-process")
-    public String createProcessInstance(
-            @PathVariable("connectorId") String connectorId,
-            @RequestParam String processName) {
-        return connectorService.createProcessInstance(connectorId, processName);
-    }
-
     @GetMapping(path = "{connectorId}/get-process")
     public String getProcessInstance(
             @PathVariable("connectorId") String connectorId) {
@@ -96,11 +90,11 @@ public class ConnectorController {
         connectorService.stopMonitoringProcessInstance(connectorId);
     }
 
-    @GetMapping(path = "{connectorId}/all-commit")
-    public List<Dictionary<String, String>> getLatestCommit(
-            @PathVariable("connectorId") String connectorId) {
-        return connectorAsyncService.getAllTrigger(connectorId);
-    }
+//    @GetMapping(path = "{connectorId}/all-commit")
+//    public List<Dictionary<String, String>> getLatestCommit(
+//            @PathVariable("connectorId") String connectorId) {
+//        return connectorAsyncService.getAllTrigger(connectorId);
+//    }
 
     @PutMapping(path = "{connectorId}/add-table")
     public void addActionTable(@PathVariable("connectorId") String connectorId,
@@ -114,10 +108,10 @@ public class ConnectorController {
         return connectorService.generateActionLinkage(connectorId);
     }
 
-    @GetMapping(path = "{connectorId}/history")
-    public void loadHistory(@PathVariable("connectorId") String connectorId) {
-        connectorService.loadHistoryCommit(connectorId);
-    }
+//    @GetMapping(path = "{connectorId}/history")
+//    public void loadHistory(@PathVariable("connectorId") String connectorId) {
+//        connectorService.loadHistoryCommit(connectorId);
+//    }
 
     @PostMapping(path = "pms-config")
     public String updatePMSConfig(@RequestBody String pmsConfig) {
@@ -129,14 +123,14 @@ public class ConnectorController {
         return connectorService.getConnectorHist(connectorId);
     }
 
-    @GetMapping(path = "caseid")
-    public List<String> login(@RequestParam String pmsName,
-                      @RequestParam String pmsURL,
-                      @RequestParam String usernamePMS,
-                      @RequestParam String passwordPMS,
-                      @RequestParam String processDef){
-        return connectorService.getProcessInstanceIdList(pmsName, pmsURL, usernamePMS, passwordPMS, processDef);
-    }
+//    @GetMapping(path = "caseid")
+//    public List<String> login(@RequestParam String pmsName,
+//                      @RequestParam String pmsURL,
+//                      @RequestParam String usernamePMS,
+//                      @RequestParam String passwordPMS,
+//                      @RequestParam String processDef){
+//        return connectorService.getProcessInstanceIdList(pmsName, pmsURL, usernamePMS, passwordPMS, processDef);
+//    }
 
     @GetMapping(path = "pms-resources")
     public List<String> getPMSResources() {

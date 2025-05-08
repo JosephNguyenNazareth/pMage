@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Document(collection = "connector")
+@Document(collection = "connector_test")
 public class Connector {
     @Id
     private String id;
@@ -55,6 +55,23 @@ public class Connector {
         this.monitoring = false;
         this.actionLinkage = new HashMap<>();
         this.bridge = bridge;
+        this.loadProperties();
+        this.appConfig = new AppConfig(System.getProperty("appconfig"), this.bridge.getProjectLink());
+        this.pmsConfig = new PmsConfig(System.getProperty("pmsconfig"), this.getBridge().getPmsName());
+        this.isArtifactCentric = this.pmsConfig.isArtifactCentric();
+        if (!this.isArtifactCentric)
+            this.actionLinkage.put("ALL", new ArrayList<>());
+        this.artifactPool = new HashMap<>();
+    }
+
+    public Connector(String userName, Bridge bridge) {
+        this.id = UUID.randomUUID().toString();
+        this.historyTriggerList = new ArrayList<>();
+        this.monitoringLog = new HashMap<>();
+        this.monitoring = false;
+        this.actionLinkage = new HashMap<>();
+        this.bridge = bridge;
+        this.userName = userName;
         this.loadProperties();
         this.appConfig = new AppConfig(System.getProperty("appconfig"), this.bridge.getProjectLink());
         this.pmsConfig = new PmsConfig(System.getProperty("pmsconfig"), this.getBridge().getPmsName());

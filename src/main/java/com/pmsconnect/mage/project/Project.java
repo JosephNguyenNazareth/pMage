@@ -6,11 +6,9 @@ import com.pmsconnect.mage.user.User;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-@Document(collection = "project")
+@Document(collection = "project_test")
 public class Project {
     @Id
     private String projectId;
@@ -19,15 +17,22 @@ public class Project {
     private Map<String, String> participateConnectionIds;
     private List<CoordinationPair> coordinationPoints;
 
+    public Project() {}
+
     public Project(String projectManager) {
         this.projectId = UUID.randomUUID().toString();
         this.projectManager = projectManager;
+        this.participatingUserIds = new ArrayList<>();
+        this.participateConnectionIds = new HashMap<>();
+        this.coordinationPoints = new ArrayList<>();
     }
 
     public Project(String projectManager, List<String> participatingUserIds) {
         this.projectId = UUID.randomUUID().toString();
         this.projectManager = projectManager;
         this.participatingUserIds = participatingUserIds;
+        this.participateConnectionIds = new HashMap<>();
+        this.coordinationPoints = new ArrayList<>();
     }
 
     public Project(String projectManager, List<String> participatingUserIds, Map<String, String> participateConnectionIds) {
@@ -35,6 +40,7 @@ public class Project {
         this.projectManager = projectManager;
         this.participatingUserIds = participatingUserIds;
         this.participateConnectionIds = participateConnectionIds;
+        this.coordinationPoints = new ArrayList<>();
     }
 
     public String getProjectId() {

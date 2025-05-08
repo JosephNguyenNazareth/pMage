@@ -162,44 +162,12 @@ public class ConnectorAsyncService {
                 }
 
                 // TODO: checking pms log to detect manual pms updates
-                this.checkingPMSLog(connector);
+
 
                     connector.addMonitoringLog(monitoringMess.toString());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    public void checkingPMSLog(Connector connector) {
-        // retrieve pms log
-        HttpClient client = HttpClients.createDefault();
-        String log = "";
-        try {
-            Map<String, String> urlMap = new HashMap<>();
-            Map<String, String> paramMap = new HashMap<>();
-
-            urlMap.put("url", connector.getPmsConfig().getUrl());
-
-            String finalUri = connector.getPmsConfig().buildAPI("log", urlMap, paramMap);
-            HttpGet getMethod = new HttpGet(finalUri);
-            HttpResponse getResponse = client.execute(getMethod);
-
-            int getStatusCode = getResponse.getStatusLine()
-                    .getStatusCode();
-            if (getStatusCode == 200) {
-                String content = EntityUtils.toString(getResponse.getEntity());
-                if (connector.getBridge().getPmsName().equals("core-bape"))
-                    log = content;
-            }
-        } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // detect manual update
-        // if not, ignore
-        // if yes, retrieve the update (mostly complete the task)
-        // check if the task related artifact is in the artifact pool
-
     }
 }

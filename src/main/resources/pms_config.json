@@ -10,6 +10,7 @@
         "api_info": [
             {
                 "name": "verify",
+                "monitoring": false,
                 "config": {
                     "method": "GET",
                     "url": "{url}/{processInstanceId}",
@@ -17,23 +18,8 @@
                 }
             },
             {
-                "name": "createProcess",
-                "config": {
-                    "method": "POST",
-                    "url": "{url}",
-                    "param": ["processName", "creatorName"]
-                }
-            },
-            {
-                "name": "changeProcessState",
-                "config": {
-                    "method": "PUT",
-                    "url": "{url}/{processInstanceId}/change-state",
-                    "param": ["processInstanceState"]
-                }
-            },
-            {
                 "name": "getTask",
+                "monitoring": false,
                 "config": {
                     "method": "GET",
                     "url": "{url}/{processInstanceId}/get-tasks",
@@ -42,6 +28,7 @@
             },
             {
                 "name": "validateTask",
+                "monitoring": true,
                 "config": {
                     "method": "GET",
                     "url": "{url}/{processInstanceId}/validate-task",
@@ -50,6 +37,7 @@
             },
             {
                 "name": "startTask",
+                "monitoring": true,
                 "config": {
                     "method": "PUT",
                     "url": "{url}/{processInstanceId}/start-task",
@@ -58,6 +46,7 @@
             },
             {
                 "name": "endTask",
+                "monitoring": true,
                 "config": {
                     "method": "PUT",
                     "url": "{url}/{processInstanceId}/end-task",
@@ -66,6 +55,7 @@
             },
             {
                 "name": "getArtifact",
+                "monitoring": false,
                 "config": {
                     "method": "GET",
                     "url": "{url}/{processInstanceId}/data-object",
@@ -74,69 +64,11 @@
             },
             {
                 "name": "log",
+                "monitoring": false,
                 "config": {
                     "method": "GET",
                     "url": "{url}/log",
                     "param": []
-                }
-            }
-        ]
-    },
-    {
-        "pms": "core-bape2",
-        "url": "https://corebape2.josephnazareth.repl.co/api/process-instance",
-        "activity_state" : {
-            "started": "started",
-            "finished": "completed"
-        },
-        "artifact-centric": true,
-        "api_info": [
-            {
-                "name": "verify",
-                "config": {
-                    "method": "GET",
-                    "url": "{url}/{processInstanceId}",
-                    "param": []
-                }
-            },
-            {
-                "name": "createProcess",
-                "config": {
-                    "method": "POST",
-                    "url": "{url}",
-                    "param": ["processName", "creatorName"]
-                }
-            },
-            {
-                "name": "changeProcessState",
-                "config": {
-                    "method": "PUT",
-                    "url": "{url}/{processInstanceId}/change-state",
-                    "param": ["processInstanceState"]
-                }
-            },
-            {
-                "name": "validateTask",
-                "config": {
-                    "method": "GET",
-                    "url": "{url}/{processInstanceId}/validate-task",
-                    "param": ["taskName", "actorName"]
-                }
-            },
-            {
-                "name": "startTask",
-                "config": {
-                    "method": "PUT",
-                    "url": "{url}/{processInstanceId}/start-task",
-                    "param": ["taskName", "actorName"]
-                }
-            },
-            {
-                "name": "endTask",
-                "config": {
-                    "method": "PUT",
-                    "url": "{url}/{processInstanceId}/end-task",
-                    "param": ["taskId"]
                 }
             }
         ]
@@ -157,6 +89,7 @@
         "api_info": [
             {
                 "name": "verify",
+                "monitoring": false,
                 "config": {
                     "method": "GET",
                     "url": "{url}/server/queries/processes/instances/{processInstanceId}",
@@ -165,6 +98,7 @@
             },
             {
                 "name": "createProcess",
+                "monitoring": false,
                 "config": {
                     "method": "POST",
                     "url": "{url}/server/containers/{containerId}/processes/{processName}/instances",
@@ -173,6 +107,7 @@
             },
             {
                 "name": "validateTask",
+                "monitoring": true,
                 "config": {
                     "method": "GET",
                     "url": "{url}/server/containers/{containerId}/tasks/{taskInstanceId}",
@@ -181,6 +116,7 @@
             },
             {
                 "name": "startTask",
+                "monitoring": true,
                 "config": {
                     "method": "PUT",
                     "url": "{url}/server/containers/{containerId}/tasks/{taskInstanceId}/states/started",
@@ -189,6 +125,7 @@
             },
             {
                 "name": "endTask",
+                "monitoring": true,
                 "config": {
                     "method": "PUT",
                     "url": "{url}/server/containers/{containerId}/tasks/{taskInstanceId}/states/completed",
@@ -208,6 +145,7 @@
         "api_info": [
             {
                 "name": "login",
+                "monitoring": false,
                 "config": {
                     "method": "POST",
                     "url": "{url}/loginservice",
@@ -229,6 +167,7 @@
             },
             {
                 "name": "verify",
+                "monitoring": true,
                 "config": {
                     "method": "GET",
                     "url": "{url}/API/bpm/case/{processInstanceId}",
@@ -251,6 +190,7 @@
             },
             {
                 "name": "createProcess",
+                "monitoring": false,
                 "config": {
                     "method": "POST",
                     "url": "{url}/API/bpm/process/{processId}/instantiation",
@@ -273,6 +213,7 @@
             },
             {
                 "name": "getCase",
+                "monitoring": false,
                 "config": {
                     "method": "GET",
                     "url": "{url}/API/bpm/case?s={processDef}",
@@ -295,6 +236,7 @@
             },
             {
                 "name": "getTask",
+                "monitoring": false,
                 "config": {
                     "method": "GET",
                     "url": "{url}/API/bpm/task?f=caseId={processInstanceId}",
@@ -317,6 +259,7 @@
             },
             {
                 "name": "validateTask",
+                "monitoring": true,
                 "config": {
                     "method": "GET",
                     "url": "{url}/API/bpm/task/{taskInstanceId}",
@@ -339,6 +282,7 @@
             },
             {
                 "name": "endTask",
+                "monitoring": true,
                 "config": {
                     "method": "PUT",
                     "url": "{url}/API/bpm/task/{taskInstanceId}",
