@@ -1,5 +1,8 @@
 package com.pmsconnect.mage.utils;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class ActionEvent {
     private String appEvent;
     private String pmsEvent;
@@ -82,5 +85,15 @@ public class ActionEvent {
     @Override
     public String toString() {
         return appEvent + ", " + contextInfo + ", " + pmsEvent + ", " + task + ", " + status;
+    }
+
+    public Map<String, String> toMap() {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("appEvent", appEvent);
+        map.put("pmsEvent", pmsEvent);
+        map.put("contextInfo", contextInfo);
+        map.put("task", task);
+        map.put("status", status);
+        return map;
     }
 }

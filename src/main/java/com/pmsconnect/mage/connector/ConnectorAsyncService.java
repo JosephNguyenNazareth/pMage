@@ -1,35 +1,16 @@
 package com.pmsconnect.mage.connector;
 
-import com.pmsconnect.mage.casestudy.PreDefinedArtifactInstance;
-import com.pmsconnect.mage.config.AppConfig;
-import com.pmsconnect.mage.kie.KieServer;
 import com.pmsconnect.mage.project.Project;
 import com.pmsconnect.mage.project.ProjectRepository;
 import com.pmsconnect.mage.project.coordination.ActivityState;
 import com.pmsconnect.mage.project.coordination.CoordinationPair;
 import com.pmsconnect.mage.utils.ActionEvent;
-import com.pmsconnect.mage.utils.Alignment;
 
-import com.pmsconnect.mage.utils.Artifact;
-import com.pmsconnect.mage.utils.Transition;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.swing.*;
-import java.io.*;
-import java.net.URISyntaxException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ConnectorAsyncService {
@@ -46,34 +27,32 @@ public class ConnectorAsyncService {
     public void monitorProcessInstance(String connectorId) {
         Connector connector = connectorRepository.findById(connectorId).orElseThrow(() -> new IllegalStateException("Connector with id " + connectorId + "does not exist."));
 
-        if (!connector.isMonitoring()) {
+        if (!connector.isMonitoring())
             connector.setMonitoring(true);
-            connectorRepository.save(connector);
-            this.watchProject(connector);
-        } else {
-            throw new IllegalStateException("This connector is already monitored");
-        }
+        connectorRepository.save(connector);
+        this.watchProject(connector);
+//        else {
+//            throw new IllegalStateException("This connector is already monitored");
+//        }
     }
 
-
+    @Async
     public void watchProject(Connector connector) {
         StringBuilder monitoringMessAll = new StringBuilder();
-        monitoringMessAll.append("Fresh monitoring connector " + connector.getId() + " of project id" + connector.getBridge().getProcessId() + "\n");
+        monitoringMessAll.append("Fresh monitoring connector " + connector.getId() + " of project id" + connector.getBridge().getProcessInstanceId() + "\n");
         connector.addMonitoringLog(monitoringMessAll.toString());
+        System.out.println("hello " + connector.getId());
 
         // then run this as a background service to watch user activities
         while(true) {
             try {
-                // check user activities every 5 seconds
-                Thread.sleep(5000);
-
                 // check if user stops pmage watching
                 Connector updatedConnector = connectorRepository.findById(connector.getId()).orElseThrow(() -> new IllegalStateException("Connector with id " + connector.getId() + "does not exist."));
                 if (!updatedConnector.isMonitoring())
                     return;
 
                 StringBuilder monitoringMess = new StringBuilder();
-                monitoringMess.append("Monitoring connector " + connector.getId() + " of project id" + connector.getBridge().getProcessId() + " of user " + connector.getBridge().getProcessId() + "\n");
+                monitoringMess.append("Monitoring connector " + connector.getId() + " of project id" + connector.getBridge().getProcessInstanceId() + " of user " + connector.getBridge().getProcessInstanceId() + "\n");
 
                 // call all app actions defined in the action linkage
                 // however, we should know which task is currently available to be done ???
@@ -103,15 +82,13 @@ public class ConnectorAsyncService {
                                         actionEvent.getContextInfo().equals(appEventTriggered.get("task"));
                                 if (!isMatchingEvent) continue;
 
-                                ActionEvent actionEventTriggered = actionEvent;
-
                                 Project linkedProject = projectRepository.findById(connector.getLinkedProjectId())
                                         .orElseThrow(() -> new IllegalStateException(
                                                 "Connector with id " + connector.getLinkedProjectId() + " does not exist."));
 
                                 // we need to check with the coordination pair as well, before calling PMS action
                                 boolean validated = linkedProject.getCoordinationPoints().stream()
-                                        .filter(pair -> pair.getSuccessorPoint().equals(actionEventTriggered.getTask()))
+                                        .filter(pair -> pair.getSuccessorPoint().equals(actionEvent.getTask()))
                                         .allMatch(pair -> {
                                             boolean ok = pair.getPrePointDesiredState().equals(pair.getPrePointActualState());
                                             // if the current task is the successor of a coordination pair
@@ -119,7 +96,7 @@ public class ConnectorAsyncService {
                                             // if not, alarm user about the issue
                                             if (!ok) {
                                                 String error = String.format("Task %s is waiting for %s to be in state %s. Current state %s.",
-                                                        actionEventTriggered.getTask(),
+                                                        actionEvent.getTask(),
                                                         pair.getPredecessorPoint(),
                                                         pair.getPrePointDesiredState(),
                                                         pair.getPrePointActualState());
@@ -132,13 +109,16 @@ public class ConnectorAsyncService {
                                 if (!validated) break;
 
                                 // Call PMS API
-                                connector.getPmsConfig().callApiWithDependencies(
-                                        actionEvent.getPmsEvent(), connector.getBridge().toMap());
+                                Map<String, String> inputValues = connector.getBridge().toMap();
+                                inputValues.putAll(actionEvent.toMap());
+                                connector.getPmsConfig().callApiWithDependencies(actionEvent.getPmsEvent(), inputValues);
+                                actionEvent.setStatus("done");
+                                connectorRepository.save(connector);
 
                                 // Update coordination pair states
                                 for (CoordinationPair pair : linkedProject.getCoordinationPoints()) {
-                                    String task = actionEventTriggered.getTask();
-                                    String event = actionEventTriggered.getPmsEvent();
+                                    String task = actionEvent.getTask();
+                                    String event = actionEvent.getPmsEvent();
 
                                     if (pair.getSuccessorPoint().equals(task)) {
                                         if (event.equals("startTask"))
@@ -164,10 +144,17 @@ public class ConnectorAsyncService {
                 // TODO: checking pms log to detect manual pms updates
 
 
-                    connector.addMonitoringLog(monitoringMess.toString());
+                connector.addMonitoringLog(monitoringMess.toString());
+                // check user activities every 5 seconds
+                Thread.sleep(5000);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void cleanup(Connector connector) {
+        connector.setMonitoring(false);
+        connectorRepository.save(connector);
     }
 }

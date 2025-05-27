@@ -22,12 +22,12 @@ public class Bridge {
     private String passwordPms;
     private String pmsUrl;
     private String processDef;
-    private String processId;
+    private String processInstanceId;
     private List<String> processDesignPaths;
 
     public Bridge() { this.loadProperties(); }
 
-    public Bridge(String appName, String userNameApp, String passwordApp, String projectLink, String projectDir, String userNamePms, String passwordPms, String pmsName, String pmsUrl, String processDef, String processId) {
+    public Bridge(String appName, String userNameApp, String passwordApp, String projectLink, String projectDir, String userNamePms, String passwordPms, String pmsName, String pmsUrl, String processDef, String processInstanceId) {
         this.appName = appName;
         this.userNameApp = userNameApp;
         this.passwordApp = passwordApp;
@@ -38,7 +38,7 @@ public class Bridge {
         this.pmsName = pmsName;
         this.pmsUrl = pmsUrl;
         this.processDef = processDef;
-        this.processId = processId;
+        this.processInstanceId = processInstanceId;
         //this.loadProperties();
     }
 
@@ -120,12 +120,12 @@ public class Bridge {
         this.pmsName = pmsName;
     }
 
-    public String getProcessId() {
-        return processId;
+    public String getProcessInstanceId() {
+        return processInstanceId;
     }
 
-    public void setProcessId(String processId) {
-        this.processId = processId;
+    public void setProcessInstanceId(String processInstanceId) {
+        this.processInstanceId = processInstanceId;
     }
 
     public String getPmsUrl() {
@@ -181,7 +181,7 @@ public class Bridge {
         map.put("passwordPms", passwordPms);
         map.put("pmsUrl", pmsUrl);
         map.put("processDef", processDef);
-        map.put("processId", processId);
+        map.put("processInstanceId", processInstanceId);
         return map;
     }
 }

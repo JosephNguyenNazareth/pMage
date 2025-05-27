@@ -56,8 +56,8 @@ public class Connector {
         this.actionLinkage = new HashMap<>();
         this.bridge = bridge;
         this.loadProperties();
-        this.appConfig = new AppConfig(System.getProperty("appconfig"), this.bridge.getProjectLink());
-        this.pmsConfig = new PmsConfig(System.getProperty("pmsconfig"), this.getBridge().getPmsName());
+        this.appConfig = new AppConfig(System.getProperty("appconfig"), this.bridge.getAppName());
+        this.pmsConfig = new PmsConfig(System.getProperty("pmsconfig"), this.bridge.getPmsName());
         this.isArtifactCentric = this.pmsConfig.isArtifactCentric();
         if (!this.isArtifactCentric)
             this.actionLinkage.put("ALL", new ArrayList<>());
@@ -73,11 +73,11 @@ public class Connector {
         this.bridge = bridge;
         this.userName = userName;
         this.loadProperties();
-        this.appConfig = new AppConfig(System.getProperty("appconfig"), this.bridge.getProjectLink());
-        this.pmsConfig = new PmsConfig(System.getProperty("pmsconfig"), this.getBridge().getPmsName());
+        this.appConfig = new AppConfig(System.getProperty("appconfig"), this.bridge.getAppName());
+        this.pmsConfig = new PmsConfig(System.getProperty("pmsconfig"), this.bridge.getPmsName());
         this.isArtifactCentric = this.pmsConfig.isArtifactCentric();
         if (!this.isArtifactCentric)
-            this.actionLinkage.put("ALL", new ArrayList<>());
+            this.actionLinkage.put("all", new ArrayList<>());
         this.artifactPool = new HashMap<>();
     }
 

@@ -89,5 +89,24 @@
                 "important": "[{time}] INFO [Simulation] Simulation completed for model '{task}'."
             }
         ]
+    },
+    {
+        "app": "chasca",
+        "event": [
+            {
+                "name": "Hunt start",
+                "method": "LOG",
+                "projectLink": "",
+                "apiInfo": "{projectDir}/chasca_log.txt",
+                "important": "[{time}] INFO [Hunt] Starting hunt for '{task}'."
+            },
+            {
+                "name": "Hunt complete",
+                "method": "LOG",
+                "projectLink": "",
+                "apiInfo": "{projectDir}/chasca_log.txt",
+                "important": "[{time}] INFO [Hunt] Hunt completed for '{task}'."
+            }
+        ]
     }
 ]

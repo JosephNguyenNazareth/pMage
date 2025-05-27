@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.pmsconnect.mage.connector.Connector;
 import com.pmsconnect.mage.user.Bridge;
-import com.pmsconnect.mage.utils.ActionEvent;
 import com.pmsconnect.mage.utils.LogPattern;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -29,10 +28,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 
 public class AppConfig {
-    private String projectLink;
     private JSONObject config;
     private String configPath;
-    private String app;
+    private String appName;
 
     public AppConfig() {
 
@@ -43,21 +41,21 @@ public class AppConfig {
         this.readConfig();
     }
 
-    public AppConfig(String configPath, String projectLink) {
+    public AppConfig(String configPath, String appName) {
         this.configPath = configPath;
-        this.projectLink = projectLink;
+        this.appName = appName;
         this.readConfig();
     }
 
-    public AppConfig(String configPath, String projectLink, JSONObject config) {
-        this.projectLink = projectLink;
+    public AppConfig(String configPath, String appName, JSONObject config) {
+        this.appName = appName;
         this.config = config;
         this.configPath = configPath;
         this.readConfig();
     }
 
-    public String getProjectLink() {
-        return projectLink;
+    public String getAppName() {
+        return appName;
     }
 
     public JSONObject getConfig() {
@@ -76,8 +74,8 @@ public class AppConfig {
         this.configPath = configPath;
     }
 
-    public void setProjectLink(String projectLink) {
-        this.projectLink = projectLink;
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public void readConfig() {
@@ -86,31 +84,14 @@ public class AppConfig {
             JSONArray configList = new JSONArray(content);
             for (int i = 0; i < configList.length(); i++) {
                 JSONObject configApp = configList.getJSONObject(i);
-                if (this.projectLink.contains(configApp.getString("app"))){
+                if (this.appName.equals(configApp.getString("app"))){
                     this.config = configApp;
-                    this.app = configApp.getString("app");
                     return;
                 }
             }
         } catch(Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private JSONObject getAppFromLink(String projectLink) {
-        try {
-            String content = new String(Files.readAllBytes(Paths.get(this.configPath)));
-            JSONArray configList = new JSONArray(content);
-            for (int i = 0; i < configList.length(); i++) {
-                JSONObject configApp = configList.getJSONObject(i);
-                if (projectLink.contains(configApp.getString("app"))){
-                   return configApp;
-                }
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public Map<String, String> emitAppEvent(Connector connector, String appEvent, List<String> contextInfoList) {
@@ -141,18 +122,19 @@ public class AppConfig {
     private String resolveLocation(String location, Connector connector) {
         return location
                 .replace("{userNameApp}", connector.getBridge().getUserNameApp())
-                .replace("{projectName}", connector.getBridge().getProcessDef());
+                .replace("{projectName}", connector.getBridge().getProcessDef())
+                .replace("{projectDir}", connector.getBridge().getProjectDir());
     }
 
     private Map<String, String> handleLogEvent(String location, String template, List<String> contextInfoList) {
-        LogPattern logPattern = new LogPattern(template);
+        LogPattern logPatternImp = new LogPattern(template);
 
         try {
             List<String> logLines = Files.readAllLines(new File(location).toPath(), Charsets.UTF_8);
             for (String log : logLines) {
-                Matcher matcher = logPattern.getPattern().matcher(log);
+                Matcher matcher = logPatternImp.getPattern().matcher(log);
                 if (matcher.matches()) {
-                    Map<String, String> extracted = extractMatchedGroups(matcher, logPattern);
+                    Map<String, String> extracted = extractMatchedGroups(matcher, logPatternImp);
                     if (contextInfoList.contains(extracted.get("task"))) {
                         return extracted;
                     }

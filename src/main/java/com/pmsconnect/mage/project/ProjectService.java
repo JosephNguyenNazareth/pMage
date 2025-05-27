@@ -54,6 +54,20 @@ public class ProjectService {
 
     }
 
+    public void addConnectors(Project project, List<Connector> connectorList) {
+        Map<String, String> connectorMap = new HashMap<>();
+
+        for (Connector connector : connectorList) {
+            connector.setLinkedProjectId(project.getProjectId());
+            connectorRepository.save(connector);
+            connectorMap.put(connector.getId(), connector.getBridge().getProcessDef());
+        }
+
+        project.setParticipateConnectionIds(connectorMap);
+        projectRepository.save(project);
+
+    }
+
     public void addUsers(String projectId, String userIds) {
         Project project = this.getProject(projectId);
         List<String> userList = Arrays.asList(userIds.split(","));

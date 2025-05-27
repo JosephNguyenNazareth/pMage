@@ -100,8 +100,12 @@ public class PmsConfig {
 
     private void resolveDependencies(JSONObject apiConfig, Map<String, String> inputValues) throws IOException {
         // Resolve dynamic headers
-        if (apiConfig.has("header") && apiConfig.getJSONObject("header").has("dynamic")) {
-            JSONObject dynamicHeaders = apiConfig.getJSONObject("header").getJSONObject("dynamic");
+        if (!apiConfig.has("require"))
+            return;
+        JSONObject requirement = apiConfig.getJSONObject("require");
+
+        if (requirement.has("header") && requirement.getJSONObject("header").has("dynamic")) {
+            JSONObject dynamicHeaders = requirement.getJSONObject("header").getJSONObject("dynamic");
             for (String headerKey : dynamicHeaders.keySet()) {
                 JSONObject dependencyInfo = dynamicHeaders.getJSONObject(headerKey);
                 for (String depApi : dependencyInfo.keySet()) {
@@ -124,11 +128,48 @@ public class PmsConfig {
                 }
             }
         }
+
+        // Resolve parameters
+        if (apiConfig.has("param") && apiConfig.getJSONObject("param").has("dynamic")) {
+            JSONObject dynamicParams = apiConfig.getJSONObject("param").getJSONObject("dynamic");
+            for (String paramKey : dynamicParams.keySet()) {
+                JSONObject dependencyInfo = dynamicParams.getJSONObject(paramKey);
+                for (String depApi : dependencyInfo.keySet()) {
+                    if (!returnValues.containsKey(depApi)) {
+                        callApiWithDependencies(depApi, inputValues);
+                    }
+                }
+            }
+        }
+
     }
 
     public String callApi(String apiName, JSONObject apiConfig, Map<String, String> inputValues) throws IOException {
         String method = apiConfig.getString("method");
         String urlStr = replacePlaceholders(apiConfig.getString("url"), inputValues);
+
+        // If method has params, append to URL
+        if (apiConfig.has("param")) {
+            JSONArray paramKeys = apiConfig.getJSONArray("param");
+            List<String> params = new ArrayList<>();
+            for (int i = 0; i < paramKeys.length(); i++) {
+                String key = paramKeys.getString(i);
+                String keyAlt = key;
+
+                // TODO: having a mapping table to convert parameters of PMS to keywords in pMage
+                // by now, just put if else condition
+                if (key.equals("actorName"))
+                    keyAlt = "userNameApp";
+                else if (key.equals("taskName"))
+                    keyAlt = "task";
+
+                String value = URLEncoder.encode(inputValues.getOrDefault(keyAlt, ""), "UTF-8");
+                params.add(key + "=" + value);
+            }
+            String paramData = String.join("&", params);
+
+            urlStr += "?" + paramData;
+        }
 
         HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
         conn.setRequestMethod(method);
@@ -165,23 +206,27 @@ public class PmsConfig {
             conn.setRequestProperty("Cookie", String.join("; ", cookies));
         }
 
-        // POST body
-        if ("POST".equalsIgnoreCase(method) && apiConfig.has("body")) {
+        // POST/PUT body or param
+        if (("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method)) && apiConfig.has("body")) {
             conn.setDoOutput(true);
-            JSONArray bodyKeys = apiConfig.getJSONArray("body");
-            String bodyData = bodyKeys.toList().stream()
-                    .map(Object::toString)
-                    .map(k -> {
-                try {
-                    return k + "=" + URLEncoder.encode(inputValues.getOrDefault(k, ""), "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException(e);
-                }
-            })
-                    .collect(Collectors.joining("&"));
+            StringBuilder bodyBuilder = new StringBuilder();
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+            JSONObject jsonBody = new JSONObject();
+            JSONArray bodyFields = apiConfig.getJSONArray("body");
+            for (Object keyObj : bodyFields) {
+                String key = keyObj.toString();
+                jsonBody.put(key, inputValues.getOrDefault(key, ""));
+            }
+
+            if (bodyBuilder.length() > 0) {
+                bodyBuilder.append("&");
+            }
+            bodyBuilder.append(jsonBody.toString());
+
 
             try (OutputStream os = conn.getOutputStream()) {
-                os.write(bodyData.getBytes());
+                os.write(bodyBuilder.toString().getBytes());
             }
         }
 
@@ -194,16 +239,29 @@ public class PmsConfig {
         if (apiConfig.has("return")) {
             Map<String, String> returned = new HashMap<>();
             JSONObject ret = apiConfig.getJSONObject("return");
+
+            // Parse the body as JSONObject
+            JSONObject bodyJson = new JSONObject(response);
+
             for (String key : ret.keySet()) {
-                String source = ret.getJSONObject(key).getString("header");
-                String raw = conn.getHeaderField(source);
-                if (raw != null) {
-                    String value = Arrays.stream(raw.split(";"))
-                            .filter(s -> s.trim().startsWith(key + "="))
-                            .map(s -> s.trim().substring((key + "=").length()))
-                            .findFirst().orElse(null);
-                    if (value != null) {
-                        returned.put(key, value);
+                JSONObject keyConfig = ret.getJSONObject(key);
+
+                if (apiConfig.has("header")) {
+                    String source = keyConfig.getString("header");
+                    String raw = conn.getHeaderField(source);
+                    if (raw != null) {
+                        String value = Arrays.stream(raw.split(";"))
+                                .filter(s -> s.trim().startsWith(key + "="))
+                                .map(s -> s.trim().substring((key + "=").length()))
+                                .findFirst().orElse(null);
+                        if (value != null) {
+                            returned.put(key, value);
+                        }
+                    }
+                } else if (keyConfig.has("body")) {
+                    String jsonKey = keyConfig.getString("body");
+                    if (bodyJson.has(jsonKey)) {
+                        returned.put(key, bodyJson.get(jsonKey).toString());
                     }
                 }
             }

@@ -220,7 +220,7 @@ public class ConnectorService {
             Map<String, String> paramMap = new HashMap<>();
 
             urlMap.put("url", connector.getPmsConfig().getUrl());
-            urlMap.put("processInstanceId", connector.getBridge().getProcessId());
+            urlMap.put("processInstanceId", connector.getBridge().getProcessInstanceId());
 
             String content = connector.getPmsConfig()
                     .callApi("getTask", connector.getPmsConfig().getConfig(), connector.getBridge().toMap());
@@ -457,7 +457,7 @@ public class ConnectorService {
             Map<String, String> paramMap = new HashMap<>();
 
             urlMap.put("url", connector.getPmsConfig().getUrl());
-            urlMap.put("processInstanceId", connector.getBridge().getProcessId());
+            urlMap.put("processInstanceId", connector.getBridge().getProcessInstanceId());
 
             String finalUri = connector.getPmsConfig()
                     .callApi("getArtifact", connector.getPmsConfig().getConfig(), connector.getBridge().toMap());
