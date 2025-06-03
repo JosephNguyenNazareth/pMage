@@ -4,19 +4,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ActivityState {
-    public static String STARTED = "started";
-    public static String FINISHED = "finished";
-    public static String UNKNOWN = "unknown";
+public enum ActivityState {
+    CREATED("CREATED"),
+    READY("READY"),
+    RESERVED("RESERVED"),
+    IN_PROGRESS("IN_PROGRESS"),
+    COMPLETED("COMPLETED"),
+    FAILED("FAILED"),
+    CANCELLED("CANCELLED"),
+    SUSPENDED("SUSPENDED"),
+    UNKNOWN("UNKNOWN");
 
-    public static Map<String, String> correspondStatesStarted = new HashMap<>();
-    public static Map<String, String> correspondStatesFinished = new HashMap<>();
+    private final String state;
 
-    public static void addCorrespondingStateStarted(String pms, String state) {
-        correspondStatesStarted.computeIfAbsent(pms, k -> state);
+    @Override
+    public String toString() {
+        return state;
     }
 
-    public static void addCorrespondingStateFinished(String pms, String state) {
-        correspondStatesFinished.computeIfAbsent(pms, k -> state);
+    ActivityState(String state) {
+        this.state = state;
     }
 }

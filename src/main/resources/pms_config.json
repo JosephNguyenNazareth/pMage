@@ -2,6 +2,16 @@
     {
         "pms": "core-bape",
         "url": "http://localhost:8081/api/process-instance",
+        "state_mapping" : {
+            "CREATED" : "init",
+            "READY" : "",
+            "RESERVED" : "",
+            "IN_PROGRESS" : "inProgress",
+            "COMPLETED" : "completed",
+            "FAILED" : "",
+            "CANCELLED" : "",
+            "SUSPENDED" : "waiting"
+        },
         "api_info": {
             "verify": {
                 "method" : "GET",
@@ -43,6 +53,11 @@
                 "url" : "{url}/{processInstanceId}/start-task",
                 "param" : ["taskName","actorName"]
             },
+            "updateArtifact" : {
+                "method" : "PUT",
+                "url" : "{url}/{processInstanceId}/update-artifact",
+                "param" : ["artifactName","actorName"]
+            },
             "endTask" : {
                 "method" : "PUT",
                 "url" : "{url}/{processInstanceId}/end-task",
@@ -72,6 +87,26 @@
     {
         "pms": "core-bape2",
         "url": "https://corebape2.josephnazareth.repl.co/api/process-instance",
+        "state_mapping" : {
+            "CREATED" : "init",
+            "READY" : "",
+            "RESERVED" : "",
+            "IN_PROGRESS" : "inProgress",
+            "COMPLETED" : "completed",
+            "FAILED" : "",
+            "CANCELLED" : "",
+            "SUSPENDED" : "waiting"
+        },
+        "api_mapping" : {
+            "CREATED" : "init",
+            "READY" : "",
+            "RESERVED" : "",
+            "IN_PROGRESS" : "startTask",
+            "COMPLETED" : "endTask",
+            "FAILED" : "",
+            "CANCELLED" : "",
+            "SUSPENDED" : ""
+        },
         "api_info": {
             "verify": {
                 "method" : "GET",
@@ -113,6 +148,16 @@
             "username" : "wbadmin",
             "password" : "wbadmin"
         },
+        "state_mapping" : {
+            "CREATED" : "",
+            "READY" : "Ready",
+            "RESERVED" : "",
+            "IN_PROGRESS" : "Active",
+            "COMPLETED" : "Completed",
+            "FAILED" : "Error",
+            "CANCELLED" : "Aborted",
+            "SUSPENDED" : ""
+        },
         "api_info": {
             "verify": {
                 "method" : "GET",
@@ -144,6 +189,16 @@
     {
         "pms" : "bonita",
         "url" : "http://localhost:8080/bonita",
+        "state_mapping" : {
+            "CREATED" : "initializing",
+            "READY" : "ready",
+            "RESERVED" : "",
+            "IN_PROGRESS" : "executing",
+            "COMPLETED" : "completed",
+            "FAILED" : "failed",
+            "CANCELLED" : "cancelled",
+            "SUSPENDED" : ""
+        },
         "api_info": {
             "login" : {
                 "method" : "POST",

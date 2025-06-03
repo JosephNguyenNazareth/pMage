@@ -15,10 +15,10 @@ public class CoordinationPair {
         this.successorProcess = successorProcess;
         this.predecessorPoint = predecessorPoint;
         this.prePointDesiredState = prePointDesiredState;
-        this.prePointActualState = ActivityState.UNKNOWN;
+        this.prePointActualState = ActivityState.UNKNOWN.toString();
         this.successorPoint = successorPoint;
         this.sucPointDesiredState = sucPointDesiredState;
-        this.sucPointActualState = ActivityState.UNKNOWN;
+        this.sucPointActualState = ActivityState.UNKNOWN.toString();
     }
 
     public String getPredecessorProcess() {

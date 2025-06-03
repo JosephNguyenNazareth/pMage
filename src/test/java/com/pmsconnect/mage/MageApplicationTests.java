@@ -114,11 +114,11 @@ class MageApplicationTests {
 
 		// set up the coordination pair ----------------------------------
 		CoordinationPair pairP12 = new CoordinationPair("P1", "P2",
-				"T2", ActivityState.FINISHED, "T4", ActivityState.STARTED);
+				"T2", ActivityState.COMPLETED, "T4", ActivityState.READY);
 		CoordinationPair pairP23 = new CoordinationPair("P2", "P3",
-				"T5", ActivityState.FINISHED, "T6", ActivityState.FINISHED);
+				"T5", ActivityState.COMPLETED, "T6", ActivityState.COMPLETED);
 		CoordinationPair pairP13 = new CoordinationPair("P3", "P1",
-				"T2", ActivityState.STARTED, "T7", ActivityState.STARTED);
+				"T2", ActivityState.READY, "T7", ActivityState.READY);
 
 		List<CoordinationPair> coordinationTables = new ArrayList<>();
 		coordinationTables.add(pairP12);

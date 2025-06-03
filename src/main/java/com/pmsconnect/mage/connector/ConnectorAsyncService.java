@@ -1,5 +1,7 @@
 package com.pmsconnect.mage.connector;
 
+import com.opencsv.exceptions.CsvException;
+import com.pmsconnect.mage.ontology.StateOntology;
 import com.pmsconnect.mage.project.Project;
 import com.pmsconnect.mage.project.ProjectRepository;
 import com.pmsconnect.mage.project.coordination.ActivityState;
@@ -10,17 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
 public class ConnectorAsyncService {
     private final ConnectorRepository connectorRepository;
     private final ProjectRepository projectRepository;
+    private final StateOntology stateOntology;
 
     @Autowired
-    public ConnectorAsyncService (ConnectorRepository mageRepository, ProjectRepository projectRepository) {
+    public ConnectorAsyncService (ConnectorRepository mageRepository, ProjectRepository projectRepository) throws IOException, CsvException {
         this.connectorRepository = mageRepository;
         this.projectRepository = projectRepository;
+        this.stateOntology = new StateOntology();
     }
 
     @Async
@@ -120,17 +125,10 @@ public class ConnectorAsyncService {
                                     String task = actionEvent.getTask();
                                     String event = actionEvent.getPmsEvent();
 
-                                    if (pair.getSuccessorPoint().equals(task)) {
-                                        if (event.equals("startTask"))
-                                            pair.setSucPointActualState(ActivityState.STARTED);
-                                        else if (event.equals("finishTask"))
-                                            pair.setSucPointActualState(ActivityState.FINISHED);
-                                    } else if (pair.getPredecessorPoint().equals(task)) {
-                                        if (event.equals("startTask"))
-                                            pair.setPrePointActualState(ActivityState.STARTED);
-                                        else if (event.equals("finishTask"))
-                                            pair.setPrePointActualState(ActivityState.FINISHED);
-                                    }
+                                    if (pair.getSuccessorPoint().equals(task))
+                                        this.updateTaskState(pair, event, false);
+                                    else if (pair.getPredecessorPoint().equals(task))
+                                        this.updateTaskState(pair, event, true);
                                 }
 
                                 projectRepository.save(linkedProject);
@@ -151,6 +149,14 @@ public class ConnectorAsyncService {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private void updateTaskState(CoordinationPair pair, String event, boolean pre) {
+        String triggeredState = this.stateOntology.getActivityStateFromFunction(event).toString();
+        if (pre)
+            pair.setPrePointActualState(triggeredState);
+        else
+            pair.setSucPointActualState(triggeredState);
     }
 
     private void cleanup(Connector connector) {

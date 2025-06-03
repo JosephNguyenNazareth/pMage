@@ -1,0 +1,9 @@
+Abstract,Function
+CREATED,createTask
+READY,createTask
+RESERVED,assignTask
+IN_PROGRESS,startTask
+COMPLETED,endTask
+FAILED,errorTask
+CANCELLED,abortTask
+SUSPENDED,pauseTask

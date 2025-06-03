@@ -1,0 +1,17 @@
+Abstract,Synonym
+CREATED,initial
+CREATED,new
+READY,available
+READY,enabled
+RESERVED,assigned
+RESERVED,claimed
+IN_PROGRESS,running
+IN_PROGRESS,executing
+COMPLETED,done
+COMPLETED,finished
+FAILED,error
+FAILED,exception
+CANCELLED,aborted
+CANCELLED,stopped
+SUSPENDED,paused
+SUSPENDED,hold
