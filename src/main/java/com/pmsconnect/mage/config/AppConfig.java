@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.pmsconnect.mage.connector.Connector;
 import com.pmsconnect.mage.user.Bridge;
+import com.pmsconnect.mage.utils.ExternalService;
 import com.pmsconnect.mage.utils.LogPattern;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -111,6 +112,9 @@ public class AppConfig {
                 case "GET":
                     return handleGetEvent(location, action.getJSONObject("important"), contextInfoList, connector);
 
+                case "bash":
+                    return handleBashEvent(location, action.getString("important"), contextInfoList);
+
                 default:
                     // Optional: log unsupported method
                     break;
@@ -163,6 +167,30 @@ public class AppConfig {
         return null;
     }
 
+    private Map<String, String> handleBashEvent(String location, String template, List<String> contextInfoList) {
+        LogPattern logPatternImp = new LogPattern(template);
+
+        try {
+            File directory = new File("/");
+            String output = ExternalService.runCommand(directory, Arrays.asList(location));
+            List<String> logLines = Arrays.asList(output.split("\n"));
+            for (String log : logLines) {
+                Matcher matcher = logPatternImp.getPattern().matcher(log);
+                if (matcher.matches()) {
+                    Map<String, String> extracted = extractMatchedGroups(matcher, logPatternImp);
+                    if (contextInfoList.contains(extracted.get("task"))) {
+                        return extracted;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace(); // Consider logging framework
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
     private Map<String, String> tryExtractMatch(JSONObject obj, JSONObject template, List<String> contextInfoList) {
         try {
             Map<String, String> fields = this.extractFields(obj, template);
@@ -174,7 +202,7 @@ public class AppConfig {
         }
         return null;
     }
-
+    
     private Map<String, String> extractMatchedGroups(Matcher matcher, LogPattern logPattern) {
         Map<String, String> extracted = new LinkedHashMap<>();
         List<String> groupNames = logPattern.getGroupNames();

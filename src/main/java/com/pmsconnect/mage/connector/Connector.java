@@ -226,9 +226,9 @@ public class Connector {
             this.publicTasks.add(publicTask);
     }
 
-    public boolean existActionEvent(String artifact, String appEvent, String pmsEvent) {
+    public boolean existActionEvent(String artifact, String appAction, String pmsAction) {
         for (ActionEvent actionEvent : this.actionLinkage.get(artifact)) {
-            if (actionEvent.getPmsEvent().equals(pmsEvent) && actionEvent.getAppEvent().equals(appEvent))
+            if (actionEvent.getPmsAction().equals(pmsAction) && actionEvent.getAppAction().equals(appAction))
                 return true;
         }
         return false;

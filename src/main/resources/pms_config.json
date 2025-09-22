@@ -2,6 +2,7 @@
     {
         "pms": "core-bape",
         "url": "http://localhost:8081/api/process-instance",
+        "artifact-centric" : false,
         "state_mapping" : {
             "CREATED" : "init",
             "READY" : "",
@@ -15,27 +16,27 @@
         "api_info": {
             "verify": {
                 "method" : "GET",
-                "url" : "{url}/{processInstanceId}",
+                "url" : "{pmsUrl}/{processInstanceId}",
                 "param" : []
             },
             "createProcess": {
                 "method" : "POST",
-                "url" : "{url}",
+                "url" : "{pmsUrl}",
                 "param" : ["processName","creatorName"]
             },
             "changeProcessState" : {
                 "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/change-state",
+                "url" : "{pmsUrl}/{processInstanceId}/change-state",
                 "param" : ["processInstanceState"]
             },
             "getTasks" : {
                 "method" : "GET",
-                "url" : "{url}/{processInstanceId}/get-tasks",
+                "url" : "{pmsUrl}/{processInstanceId}/get-tasks",
                 "param" : []
             },
             "getTaskInstance" : {
                 "method" : "GET",
-                "url" : "{url}/{processInstanceId}/get-task",
+                "url" : "{pmsUrl}/{processInstanceId}/get-task",
                 "param" : ["taskName"],
                 "return" : {
                     "taskInstanceId": {
@@ -45,22 +46,22 @@
             },
             "validateTask" : {
                 "method" : "GET",
-                "url" : "{url}/{processInstanceId}/validate-task",
+                "url" : "{pmsUrl}/{processInstanceId}/validate-task",
                 "param" : ["taskName","actorName"]
             },
             "startTask" : {
                 "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/start-task",
+                "url" : "{pmsUrl}/{processInstanceId}/start-task",
                 "param" : ["taskName","actorName"]
             },
             "updateArtifact" : {
                 "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/update-artifact",
+                "url" : "{pmsUrl}/{processInstanceId}/update-artifact",
                 "param" : ["artifactName","actorName"]
             },
             "endTask" : {
                 "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/end-task",
+                "url" : "{pmsUrl}/{processInstanceId}/end-task",
                 "param" : ["taskInstanceId"],
                 "require" : {
                     "param" : {
@@ -74,12 +75,12 @@
             },
             "getArtifact" : {
                 "method": "GET",
-                "url": "{url}/{processInstanceId}/data-object",
+                "url": "{pmsUrl}/{processInstanceId}/data-object",
                 "param": []
             },
             "log" : {
                 "method": "GET",
-                "url": "{url}/log",
+                "url": "{pmsUrl}/log",
                 "param": []
             }
         }
@@ -87,11 +88,12 @@
     {
         "pms": "core-bape2",
         "url": "https://corebape2.josephnazareth.repl.co/api/process-instance",
+        "artifact-centric" : false,
         "state_mapping" : {
             "CREATED" : "init",
             "READY" : "",
             "RESERVED" : "",
-            "IN_PROGRESS" : "inProgress",
+            "IN_PROGRESS" : "InProgress",
             "COMPLETED" : "completed",
             "FAILED" : "",
             "CANCELLED" : "",
@@ -110,32 +112,32 @@
         "api_info": {
             "verify": {
                 "method" : "GET",
-                "url" : "{url}/{processInstanceId}",
+                "url" : "{pmsUrl}/{processInstanceId}",
                 "param" : []
             },
             "createProcess": {
                 "method" : "POST",
-                "url" : "{url}",
+                "url" : "{pmsUrl}",
                 "param" : ["processName","creatorName"]
             },
             "changeProcessState" : {
                 "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/change-state",
+                "url" : "{pmsUrl}/{processInstanceId}/change-state",
                 "param" : ["processInstanceState"]
             },
             "validateTask" : {
                 "method" : "GET",
-                "url" : "{url}/{processInstanceId}/validate-task",
+                "url" : "{pmsUrl}/{processInstanceId}/validate-task",
                 "param" : ["taskName","actorName"]
             },
             "startTask" : {
                 "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/start-task",
+                "url" : "{pmsUrl}/{processInstanceId}/start-task",
                 "param" : ["taskName","actorName"]
             },
             "endTask" : {
                 "method" : "PUT",
-                "url" : "{url}/{processInstanceId}/end-task",
+                "url" : "{pmsUrl}/{processInstanceId}/end-task",
                 "param" : ["taskInstanceId"]
             }
         }
@@ -143,6 +145,7 @@
     {
         "pms" : "jBPM",
         "url" : "http://localhost:8080/kie-server/services/rest",
+        "artifact-centric" : false,
         "user_info" : {
             "method" : "Basic Auth",
             "username" : "wbadmin",
@@ -161,34 +164,194 @@
         "api_info": {
             "verify": {
                 "method" : "GET",
-                "url" : "{url}/server/queries/processes/instances/{processInstanceId}",
+                "url" : "{pmsUrl}/server/queries/processes/instances/{processInstanceId}",
                 "param" : []
             },
             "createProcess": {
                 "method" : "POST",
-                "url" : "{url}/server/containers/{containerId}/processes/{processName}/instances",
+                "url" : "{pmsUrl}/server/containers/{containerId}/processes/{processName}/instances",
                 "param" : []
             },
             "validateTask" : {
                 "method" : "GET",
-                "url" : "{url}/server/containers/{containerId}/tasks/{taskInstanceId}",
+                "url" : "{pmsUrl}/server/containers/{containerId}/tasks/{taskInstanceId}",
                 "param" : []
+            },
+            "getProcessInstances" : {
+                "method" : "GET",
+                "url" : "{pmsUrl}/server/queries/processes/instances",
+                "header" : {
+                    "fixed": {
+                        "Accept": "application/json"
+                    }
+                },
+                "require": {
+                    "authorization": {
+                        "dynamic": {
+                            "Username": "userNamePms",
+                            "Password": "passwordPms",
+                            "Auth Type": "Basic Auth"
+                        }
+                    }
+                },
+                "return" : {
+                    "processName":  {
+                        "result": "process-name"
+                    },
+                    "containerId":  {
+                        "result": "container-id"
+                    },
+                    "processId":  {
+                        "result": "process-id"
+                    },
+                    "processInstanceId":  {
+                        "result": "process-instance-id"
+                    }
+                }
+            },
+            "getTaskInstances": {
+                "method" : "GET",
+                "url": "{pmsUrl}/server/queries/tasks/instances/process/{processInstanceId}",
+                "header" : {
+                    "fixed": {
+                        "Accept": "application/json"
+                    }
+                },
+                "require": {
+                    "authorization": {
+                        "dynamic": {
+                            "Username": "userNamePms",
+                            "Password": "passwordPms",
+                            "Auth Type": "Basic Auth"
+                        }
+                    },
+                    "path": {
+                        "dynamic" : {
+                            "processInstanceId": {
+                                "getProcessInstances": {
+                                    "type": "return-loop",
+                                    "process-name": "processName"
+                                }
+                            }
+                        }
+                    }
+                },
+                "param": [],
+                "return" : {
+                    "taskInstanceId":  {
+                        "result": "task-id"
+                    }
+                }
+            },
+            "getTask" : {
+                "method" : "GET",
+                "url" : "{pmsUrl}/server/containers/{containerId}/processes/definitions/{processId}/tasks/users",
+                "header" : {
+                    "fixed": {
+                        "Accept": "application/json"
+                    }
+                },
+                "require": {
+                    "authorization": {
+                        "dynamic": {
+                            "Username": "userNamePms",
+                            "Password": "passwordPms",
+                            "Auth Type": "Basic Auth"
+                        }
+                    },
+                    "path": {
+                        "dynamic" : {
+                            "containerId": {
+                                "getProcessInstances": {
+                                    "type": "return-loop",
+                                    "process-name": "processName"
+                                }
+                            },
+                            "processId": {
+                                "getProcessInstances": {
+                                    "type": "return-loop",
+                                    "process-name": "processName"
+                                }
+                            }
+                        }
+                    }
+                },
+                "param" : [],
+                "return": {
+                    "taskName":  {
+                        "result": "task-name"
+                    },
+                    "taskId":  {
+                        "result": "task-id"
+                    }
+                }
             },
             "startTask" : {
                 "method" : "PUT",
-                "url" : "{url}/server/containers/{containerId}/tasks/{taskInstanceId}/states/started",
+                "url" : "{pmsUrl}/server/containers/{containerId}/tasks/{taskInstanceId}/states/started",
+                "require": {
+                    "authorization": {
+                        "dynamic": {
+                            "Username": "userNamePms",
+                            "Password": "passwordPms",
+                            "Auth Type": "Basic Auth"
+                        }
+                    },
+                    "path": {
+                        "dynamic" : {
+                            "containerId": {
+                                "getProcessInstance": {
+                                    "type": "return-loop",
+                                    "process-name": "processName"
+                                }
+                            },
+                            "taskInstanceId": {
+                                "getTaskInstances": {
+                                    "type": "return-loop",
+                                    "task-name": "task"
+                                }
+                            }
+                        }
+                    }
+                },
                 "param" : []
             },
             "endTask" : {
                 "method" : "PUT",
-                "url" : "{url}/server/containers/{containerId}/tasks/{taskInstanceId}/states/completed",
+                "url" : "{pmsUrl}/server/containers/{containerId}/tasks/{taskInstanceId}/states/completed",
+                "require": {
+                    "authorization": {
+                        "dynamic": {
+                            "Username": "userNamePms",
+                            "Password": "passwordPms",
+                            "Auth Type": "Basic Auth"
+                        }
+                    },
+                    "path": {
+                        "dynamic" : {
+                            "containerId": {
+                                "getProcessInstance": {
+                                    "type": "return-loop",
+                                    "process-name": "processName"
+                                }
+                            },
+                            "taskInstanceId": {
+                                "getTaskInstances": {
+                                    "type": "return-loop",
+                                    "process-name": "processName"
+                                }
+                            }
+                        }
+                    }
+                },
                 "param" : []
             }
         }
     },
     {
         "pms" : "bonita",
-        "url" : "http://localhost:8080/bonita",
+        "url" : "http://localhost:11107/bonita",
+        "artifact-centric" : false,
         "state_mapping" : {
             "CREATED" : "initializing",
             "READY" : "ready",
@@ -202,13 +365,16 @@
         "api_info": {
             "login" : {
                 "method" : "POST",
-                "url" : "{url}/loginservice",
+                "url" : "{pmsUrl}/loginservice",
                 "header" : {
                     "fixed": {
                         "Content-type": "application/x-www-form-urlencoded"
                     }
                 },
-                "body" : ["username", "password"],
+                "body" : {
+                    "username": "userNamePms",
+                    "password": "passwordPms"
+                },
                 "return" : {
                     "JSESSIONID":  {
                         "header": "Set-Cookie"
@@ -220,7 +386,7 @@
             },
             "verify": {
                 "method" : "GET",
-                "url" : "{url}/API/bpm/case/{processInstanceId}",
+                "url" : "{pmsUrl}/API/bpm/case/{processInstanceId}",
                 "require": {
                     "cookie": {
                         "dynamic": {
@@ -241,7 +407,7 @@
             },
             "createProcess": {
                 "method" : "POST",
-                "url" : "{url}/API/bpm/process/{processId}/instantiation",
+                "url" : "{pmsUrl}/API/bpm/process/{processId}/instantiation",
                 "require": {
                     "cookie": {
                         "dynamic": {
@@ -262,7 +428,7 @@
             },
             "getCase" : {
                 "method" : "GET",
-                "url" : "{url}/API/bpm/case?s={processDef}",
+                "url" : "{pmsUrl}/API/bpm/case?s={processName}",
                 "require": {
                     "cookie": {
                         "dynamic": {
@@ -283,7 +449,7 @@
             },
             "getTask" : {
                 "method" : "GET",
-                "url" : "{url}/API/bpm/task?f=caseId={processInstanceId}",
+                "url" : "{pmsUrl}/API/bpm/task?f=caseId={processInstanceId}",
                 "require": {
                     "cookie": {
                         "dynamic": {
@@ -300,11 +466,19 @@
                         }
                     }
                 },
-                "param" : []
+                "param" : [],
+                "return": {
+                    "taskName":  {
+                        "result": "name"
+                    },
+                    "taskId":  {
+                        "result": "id"
+                    }
+                }
             },
             "validateTask" : {
                 "method" : "GET",
-                "url" : "{url}/API/bpm/task/{taskInstanceId}",
+                "url" : "{pmsUrl}/API/bpm/task/{taskInstanceId}",
                 "require": {
                     "cookie": {
                         "dynamic": {
@@ -325,7 +499,7 @@
             },
             "endTask" : {
                 "method" : "PUT",
-                "url" : "{url}/API/bpm/task/{taskInstanceId}",
+                "url" : "{pmsUrl}/API/bpm/task/{taskInstanceId}",
                 "require": {
                     "cookie": {
                         "dynamic": {

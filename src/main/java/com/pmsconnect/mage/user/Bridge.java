@@ -180,7 +180,7 @@ public class Bridge {
         map.put("userNamePms", userNamePms);
         map.put("passwordPms", passwordPms);
         map.put("pmsUrl", pmsUrl);
-        map.put("processDef", processDef);
+        map.put("processName", processDef);
         map.put("processInstanceId", processInstanceId);
         return map;
     }

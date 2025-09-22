@@ -4,53 +4,42 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ActionEvent {
-    private String appEvent;
-    private String pmsEvent;
+    private String appAction;
+    private String pmsAction;
     private String contextInfo;
-    private String task;
-    private String status;
+    private String runtimeElement;
 
     public ActionEvent() {
     }
 
-    public ActionEvent(String action, String contextInfo, String pmsEvent, String task) {
-        this.appEvent = action;
+    public ActionEvent(String action, String contextInfo, String pmsEvent) {
+        this.appAction = action;
         this.contextInfo = contextInfo;
-        this.pmsEvent = pmsEvent;
-        this.task = task;
-        this.status = "ready";
+        this.pmsAction = pmsEvent;
+        this.runtimeElement = "";
     }
 
     public ActionEvent(String[] actionEventToken) {
-        this.appEvent = actionEventToken[0];
+        this.appAction = actionEventToken[0];
         this.contextInfo = actionEventToken[1];
-        this.pmsEvent = actionEventToken[2];
-        this.task = actionEventToken[3];
-        this.status = "ready";
+        this.pmsAction = actionEventToken[2];
+        this.runtimeElement = "";
     }
 
-    public String getAppEvent() {
-        return appEvent;
+    public String getAppAction() {
+        return appAction;
     }
 
-    public void setAppEvent(String appEvent) {
-        this.appEvent = appEvent;
+    public void setAppAction(String appAction) {
+        this.appAction = appAction;
     }
 
-    public String getPmsEvent() {
-        return pmsEvent;
+    public String getPmsAction() {
+        return pmsAction;
     }
 
-    public void setPmsEvent(String pmsEvent) {
-        this.pmsEvent = pmsEvent;
-    }
-
-    public String getTask() {
-        return task;
-    }
-
-    public void setTask(String task) {
-        this.task = task;
+    public void setPmsAction(String pmsAction) {
+        this.pmsAction = pmsAction;
     }
 
     public String getContextInfo() {
@@ -61,12 +50,12 @@ public class ActionEvent {
         this.contextInfo = contextInfo;
     }
 
-    public String getStatus() {
-        return status;
+    public String getRuntimeElement() {
+        return runtimeElement;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setRuntimeElement(String runtimeElement) {
+        this.runtimeElement = runtimeElement;
     }
 
     @Override
@@ -76,24 +65,22 @@ public class ActionEvent {
         if (other == this)
             return true;
         ActionEvent otherActionEvent = (ActionEvent) other;
-        return otherActionEvent.getAppEvent().equals(this.getAppEvent())
-                && otherActionEvent.getPmsEvent().equals(this.getPmsEvent())
-                && otherActionEvent.getContextInfo().equals(this.getContextInfo())
-                && otherActionEvent.getTask().equals(this.getTask());
+        return otherActionEvent.getAppAction().equals(this.getAppAction())
+                && otherActionEvent.getPmsAction().equals(this.getPmsAction())
+                && otherActionEvent.getContextInfo().equals(this.getContextInfo());
     }
 
     @Override
     public String toString() {
-        return appEvent + ", " + contextInfo + ", " + pmsEvent + ", " + task + ", " + status;
+        return appAction + ", " + contextInfo + ", " + pmsAction + ", " + runtimeElement;
     }
 
     public Map<String, String> toMap() {
         Map<String, String> map = new LinkedHashMap<>();
-        map.put("appEvent", appEvent);
-        map.put("pmsEvent", pmsEvent);
+        map.put("appEvent", appAction);
+        map.put("pmsEvent", pmsAction);
         map.put("contextInfo", contextInfo);
-        map.put("task", task);
-        map.put("status", status);
+        map.put("runtimeElement", runtimeElement);
         return map;
     }
 }

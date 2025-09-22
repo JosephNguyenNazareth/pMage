@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ConnectorService {
@@ -214,35 +215,21 @@ public class ConnectorService {
     }
 
     public List<String> getTaskList(Connector connector ) {
-        HttpClient client = HttpClients.createDefault();
         try {
-            Map<String, String> urlMap = new HashMap<>();
-            Map<String, String> paramMap = new HashMap<>();
-
-            urlMap.put("url", connector.getPmsConfig().getUrl());
-            urlMap.put("processInstanceId", connector.getBridge().getProcessInstanceId());
-
-            String content = connector.getPmsConfig()
-                    .callApi("getTask", connector.getPmsConfig().getConfig(), connector.getBridge().toMap());
-
-            if (connector.getBridge().getPmsName().equals("core-bape")) {
-                content = content.replace("[","").replace("]","").replace("\"","");
-                return Arrays.asList(content.split(","));
-            } else if (connector.getBridge().getPmsName().equals("bonita")) {
-                JSONArray taskList = new JSONArray(content);
-
-                List<String> taskNameList = new ArrayList<>();
-                for (int i = 0; i< taskList.length(); i++) {
-                    JSONObject task = taskList.getJSONObject(i);
-                    String taskName = task.getString("name");
-                    taskNameList.add(taskName);
-                }
-                return taskNameList;
-            }
-            return null;
+            connector.getPmsConfig().callApiWithDependencies("getTask", connector.getBridge().toMap());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        Object taskObj = connector.getPmsConfig().getReturnValues().get("getTask").get("taskName");
+
+        if (taskObj instanceof String[]) {
+            return Arrays.asList((String[]) taskObj);
+        } else if (taskObj instanceof Object[]) {
+            return Arrays.stream((Object[]) taskObj)
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
+        }
+        return null;
     }
 
     public List<String> extractKeywords(List<String> taskList) {
@@ -282,11 +269,11 @@ public class ConnectorService {
     public String generateActionLinkageTest(Connector connector) {
         List<String> taskList = new ArrayList<>();
         if (connector.getUserName().equals("sunny"))
-            taskList.addAll(Arrays.asList(new String[]{"T1", "T2"}));
+            taskList.addAll(Arrays.asList("T1", "T2"));
         else if (connector.getUserName().equals("cherry"))
-            taskList.addAll(Arrays.asList(new String[]{"T3", "T4", "T5"}));
+            taskList.addAll(Arrays.asList("T3", "T4", "T5"));
         else if (connector.getUserName().equals("teddy"))
-            taskList.addAll(Arrays.asList(new String[]{"T6", "T7", "T8"}));
+            taskList.addAll(Arrays.asList("T6", "T7", "T8"));
 
         // read app event
         JSONObject appConfig = connector.getAppConfig().getConfig();
@@ -294,21 +281,16 @@ public class ConnectorService {
 
         // read pms event
         JSONObject pmsConfig = connector.getPmsConfig().getConfig();
-        JSONArray listPmsEvent = pmsConfig.getJSONArray("api_info");
+        JSONObject listPmsEvent = pmsConfig.getJSONObject("api_info");
 
         List<ActionEvent> listActionEvent = new ArrayList<>();
         for (int i = 0; i < taskList.size(); i++) {
             for (int j = 0; j < listAppEvent.length(); j++) {
-                for (int k = 0; k < listPmsEvent.length(); k++) {
-                    // we skip the pms event not related to monitoring user behaviour
-                    if (!listPmsEvent.getJSONObject(k).getBoolean("monitoring"))
-                        continue;
-
+                for (String pmsEvent : listPmsEvent.keySet()) {
                     String appEvent = listAppEvent.getJSONObject(j).get("name").toString();
-                    String pmsEvent = listPmsEvent.getJSONObject(k).get("name").toString();
                     // updated : we should also include the pms event in the task list so that from the context info + app event
                     // we can infer the corresponding pms event and the task
-                    ActionEvent actionEvent = new ActionEvent(appEvent, pmsEvent + " " + taskList.get(i), pmsEvent, taskList.get(i));
+                    ActionEvent actionEvent = new ActionEvent(appEvent, pmsEvent + " " + taskList.get(i), pmsEvent);
                     listActionEvent.add(actionEvent);
                 }
             }
@@ -356,13 +338,32 @@ public class ConnectorService {
                     String pmsEvent = listPmsEvent.getJSONObject(k).get("name").toString();
                     // updated : we should also include the pms event in the task list so that from the context info + app event
                     // we can infer the corresponding pms event and the task
-                    ActionEvent actionEvent = new ActionEvent(appEvent, pmsEvent + " " + keywordList.get(i), pmsEvent, taskList.get(i));
+                    ActionEvent actionEvent = new ActionEvent(appEvent, pmsEvent + " " + keywordList.get(i), pmsEvent);
                     listActionEvent.add(actionEvent);
                 }
             }
         }
 
         return listActionEvent;
+    }
+
+    public void createActionLinkage(String connectorId, String actionLinkage) {
+        Connector connector = this.getConnector(connectorId);
+
+        String[] actionLinkageList = actionLinkage.split("\n");
+        List<ActionEvent> actionEventList = new ArrayList<>();
+
+        for (String actionEventStr : actionLinkageList) {
+            String[] actionEventArr = actionEventStr.replace("\t","").replace(" ","").split(",");
+            actionEventList.add(new ActionEvent(actionEventArr));
+        }
+
+        // handle artifact-centric process model
+        Map<String, List<ActionEvent>> actionEventMap = new HashMap<>();
+        actionEventMap.put("all", actionEventList);
+
+        connector.setActionLinkage(actionEventMap);
+        connectorRepository.save(connector);
     }
 
     public String generateActionLinkage(String connectorId) {

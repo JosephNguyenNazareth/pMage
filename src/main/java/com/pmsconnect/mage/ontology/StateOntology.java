@@ -5,13 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import com.pmsconnect.mage.project.coordination.ActivityState;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import com.opencsv.exceptions.CsvException;
+import com.pmsconnect.mage.utils.ExternalService;
 
 public class StateOntology {
     private Map<ActivityState, List<String>> stateSynonyms;
@@ -134,5 +134,30 @@ public class StateOntology {
                 return activityState;
         }
         return null;
+    }
+
+    public Map<ActivityState, String> updateStateMapping(List<String> newPmsConcreteState) {
+        Map<ActivityState, String> newPmsMapping = new HashMap<>();
+        for (String concreteState : newPmsConcreteState) {
+            for (ActivityState activityState: stateSynonyms.keySet()) {
+                if (stateSynonyms.get(activityState).contains(concreteState))
+                    newPmsMapping.put(activityState, concreteState);
+            }
+        }
+
+        return newPmsMapping;
+    }
+
+    public void updateStateSynonym() {
+        File directory = new File("./src/main/python/state_ontology");
+        List<String> commands = new ArrayList<>();
+        String pythonPath = System.getProperty("python");
+        commands.add(pythonPath);
+        commands.add("update_synonym.py");
+        try {
+            this.readStateSynonymsCsv("./src/main/resources/state_synonyms.csv");
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

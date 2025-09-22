@@ -3,7 +3,7 @@ package com.pmsconnect.mage;
 import com.pmsconnect.mage.connector.Connector;
 import com.pmsconnect.mage.connector.ConnectorRepository;
 import com.pmsconnect.mage.user.Bridge;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 

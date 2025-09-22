@@ -207,7 +207,7 @@
             },
             "getCase" : {
                 "method" : "GET",
-                "url" : "{url}/API/bpm/case?s={processDef}",
+                "url" : "{url}/API/bpm/case?s={processName}",
                 "require": {
                     "cookie": {
                         "dynamic": {

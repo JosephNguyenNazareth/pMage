@@ -44,7 +44,7 @@ public class ProjectTest {
         connectorBoards.put(connectorP31.getId(), "P3");
         connectorBoards.put(connectorP32.getId(), "P3");
 
-        CoordinationPair pairP12 = new CoordinationPair("P1", "P2",
+        /*CoordinationPair pairP12 = new CoordinationPair("P1", "P2",
                 "T2", ActivityState.FINISHED, "T3", ActivityState.STARTED);
         CoordinationPair pairP23 = new CoordinationPair("P2", "P3",
                 "T5", ActivityState.FINISHED, "T6", ActivityState.FINISHED);
@@ -52,7 +52,7 @@ public class ProjectTest {
                 "T2", ActivityState.STARTED, "T7", ActivityState.STARTED);
 
         List<CoordinationPair> coordinationTables = Arrays.asList(new CoordinationPair[]{pairP12, pairP23, pairP13});
-        projectA.setCoordinationPoints(coordinationTables);
+        projectA.setCoordinationPoints(coordinationTables);*/
 
         System.out.println(projectA);
     }
@@ -102,11 +102,11 @@ public class ProjectTest {
         projectA.setParticipateConnectionIds(connectorBoards);
 
         CoordinationPair pairP12 = new CoordinationPair("P1", "P2",
-                "T2", ActivityState.FINISHED, "T3", ActivityState.STARTED);
+                "T2", ActivityState.COMPLETED.toString(), "T3", ActivityState.IN_PROGRESS.toString());
         CoordinationPair pairP23 = new CoordinationPair("P2", "P3",
-                "T5", ActivityState.FINISHED, "T6", ActivityState.FINISHED);
+                "T5", ActivityState.COMPLETED.toString(), "T6", ActivityState.COMPLETED.toString());
         CoordinationPair pairP13 = new CoordinationPair("P3", "P1",
-                "T6", ActivityState.STARTED, "T2", ActivityState.STARTED);
+                "T6", ActivityState.IN_PROGRESS.toString(), "T2", ActivityState.IN_PROGRESS.toString());
 
         List<CoordinationPair> coordinationTables = new ArrayList<>();
         coordinationTables.add(pairP12);

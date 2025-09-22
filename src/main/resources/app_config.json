@@ -108,5 +108,57 @@
                 "important": "[{time}] INFO [Hunt] Hunt completed for '{task}'."
             }
         ]
+    },
+    {
+        "app": "autopsy",
+        "event": [
+            {
+                "name": "create-case",
+                "method": "LOG",
+                "projectLink": "",
+                "apiInfo": "/opt/homebrew/var/lib/autopsy/{projectIdr}/case.log",
+                "important": "{time}: Case {projectIdr} created"
+            },
+            {
+                "name": "add-host",
+                "method": "LOG",
+                "projectLink": "",
+                "apiInfo": "/opt/homebrew/var/lib/autopsy/{projectIdr}/case.log",
+                "important": "{time}: Host {targetDevice} added to case"
+            },
+            {
+                "name": "add-data-source",
+                "method": "LOG",
+                "projectLink": "",
+                "apiInfo": "/opt/homebrew/var/lib/autopsy/{projectIdr}/{targetDevice}/logs/host.log",
+                "important": "{time}: Image added: image img1 raw  {targetDataSource}"
+            },
+            {
+                "name": "keyword-search",
+                "method": "LOG",
+                "projectLink": "",
+                "apiInfo": "/opt/homebrew/var/lib/autopsy/{projectIdr}/{targetDevice}/logs/{userNameApp}.log",
+                "important": "{time}: {targetDataSource}: ASCII, Unicode, search for {keyword}"
+            },
+            {
+                "name": "file-search",
+                "method": "LOG",
+                "projectLink": "",
+                "apiInfo": "/opt/homebrew/var/lib/autopsy/{projectIdr}/{targetDevice}/logs/{userNameApp}.log",
+                "important": "{time}: {targetDataSource}: Directory listing of {partition}"
+            }
+        ]
+    },
+    {
+        "app": "dc3dd",
+        "event": [
+            {
+                "name": "create-image",
+                "method": "bash",
+                "projectLink": "",
+                "apiInfo": "cat ~/.zsh_history | grep dc3dd",
+                "important": "sudo dc3dd if={artifact1} of={artifact2} hash=md5"
+            }
+        ]
     }
 ]

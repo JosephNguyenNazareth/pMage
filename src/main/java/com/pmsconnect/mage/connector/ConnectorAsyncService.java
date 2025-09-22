@@ -68,13 +68,12 @@ public class ConnectorAsyncService {
                     // select only untriggered app event to check
                     List<ActionEvent> artifactActionLinkage = new ArrayList<>();
                     for (ActionEvent actionEvent: allArtifactActionLinkage) {
-                        if (actionEvent.getStatus().equals("ready"))
-                            artifactActionLinkage.add(actionEvent);
+                        artifactActionLinkage.add(actionEvent);
                     }
 
                     Map<String, List<String>> appEventChecklist = new HashMap<>();
                     for (ActionEvent actionEvent : artifactActionLinkage) {
-                        appEventChecklist.computeIfAbsent(actionEvent.getAppEvent(), k -> new ArrayList<>()).add(actionEvent.getContextInfo());
+                        appEventChecklist.computeIfAbsent(actionEvent.getAppAction(), k -> new ArrayList<>()).add(actionEvent.getContextInfo());
                     }
 
                     // notation : the list of app event check list contains only untriggered events
@@ -83,7 +82,7 @@ public class ConnectorAsyncService {
                         // if there is new triggered app event
                         if (appEventTriggered != null) {
                             for (ActionEvent actionEvent : artifactActionLinkage) {
-                                boolean isMatchingEvent = actionEvent.getAppEvent().equals(appEvent) &&
+                                boolean isMatchingEvent = actionEvent.getAppAction().equals(appEvent) &&
                                         actionEvent.getContextInfo().equals(appEventTriggered.get("task"));
                                 if (!isMatchingEvent) continue;
 
@@ -93,7 +92,7 @@ public class ConnectorAsyncService {
 
                                 // we need to check with the coordination pair as well, before calling PMS action
                                 boolean validated = linkedProject.getCoordinationPoints().stream()
-                                        .filter(pair -> pair.getSuccessorPoint().equals(actionEvent.getTask()))
+                                        .filter(pair -> pair.getSuccessorPoint().equals(actionEvent.getRuntimeElement()))
                                         .allMatch(pair -> {
                                             boolean ok = pair.getPrePointDesiredState().equals(pair.getPrePointActualState());
                                             // if the current task is the successor of a coordination pair
@@ -101,7 +100,7 @@ public class ConnectorAsyncService {
                                             // if not, alarm user about the issue
                                             if (!ok) {
                                                 String error = String.format("Task %s is waiting for %s to be in state %s. Current state %s.",
-                                                        actionEvent.getTask(),
+                                                        actionEvent.getRuntimeElement(),
                                                         pair.getPredecessorPoint(),
                                                         pair.getPrePointDesiredState(),
                                                         pair.getPrePointActualState());
@@ -116,14 +115,13 @@ public class ConnectorAsyncService {
                                 // Call PMS API
                                 Map<String, String> inputValues = connector.getBridge().toMap();
                                 inputValues.putAll(actionEvent.toMap());
-                                connector.getPmsConfig().callApiWithDependencies(actionEvent.getPmsEvent(), inputValues);
-                                actionEvent.setStatus("done");
+                                connector.getPmsConfig().callApiWithDependencies(actionEvent.getPmsAction(), inputValues);
                                 connectorRepository.save(connector);
 
                                 // Update coordination pair states
                                 for (CoordinationPair pair : linkedProject.getCoordinationPoints()) {
-                                    String task = actionEvent.getTask();
-                                    String event = actionEvent.getPmsEvent();
+                                    String task = actionEvent.getRuntimeElement();
+                                    String event = actionEvent.getPmsAction();
 
                                     if (pair.getSuccessorPoint().equals(task))
                                         this.updateTaskState(pair, event, false);
